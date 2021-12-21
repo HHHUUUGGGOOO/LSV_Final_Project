@@ -7,17 +7,17 @@
 
 # Framework
 - src 
-    -- ext-Final (our main .cpp/.h)
+    - ext-Final (our main .cpp/.h)
 
 - testcase
-    -- Basic circuits that can be read by abc
+    - Basic circuits that can be read by abc
 
 - ILP_solver
-    -- C++ ILP solver package
+    - C++ ILP solver package
 
 - abc
-    -- other files and folders are duplicated from LSV-PA
-    -- src/base/ver/verCore.c --> Ver_ParseGateStandard() has been modified to read verilog file
+    - other files and folders are duplicated from LSV-PA
+    - src/base/ver/verCore.c --> Ver_ParseGateStandard() has been modified to read verilog file
 
 #  Note
 - Remember to modify "Makefile" and "src/ext-Final/module.make" if needed
