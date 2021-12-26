@@ -49,11 +49,7 @@ Abc_Frame_t * pAbc = 0;
 //----------------------------------------------------------------------
 void init(Abc_Frame_t* pAbc)
 {
-  Cmd_CommandAdd(pAbc, "LSV", "collapse", LSV_CommandCollapse, 0);
-  Cmd_CommandAdd(pAbc, "LSV", "unate_check", LSV_CommandUnateCheck, 0);
-  Cmd_CommandAdd(pAbc, "LSV", "ILP_check", LSV_CommandILPCheck, 0);
-  Cmd_CommandAdd(pAbc, "LSV", "unate_split", LSV_CommandUnateSplit, 0);
-  Cmd_CommandAdd(pAbc, "LSV", "binate_split", LSV_CommandBinateSplit, 0);
+  Cmd_CommandAdd(pAbc, "LSV", "threshold_optimize", LSV_CommandThreshold, 0);
 }
 
 void destroy(Abc_Frame_t* pAbc) {}
