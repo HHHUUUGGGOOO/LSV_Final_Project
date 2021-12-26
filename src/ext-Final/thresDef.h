@@ -27,7 +27,10 @@ using namespace std;
 //----------------------------------------------------------------------
 //    each algorithm;s function
 //----------------------------------------------------------------------
-void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin);
+void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin)
+{
+  
+}
 
 void LSV_Collapse(Abc_Ntk_t* pNtk, int max_fanin);
 bool LSV_UnateCheck(vector<vector<Abc_Obj_t*>> logic_SOP);
@@ -38,7 +41,6 @@ void LSV_BinateSplit(vector<vector<Abc_Obj_t*>> logic_SOP, int max_fanin);
 //----------------------------------------------------------------------
 //    add new command
 //----------------------------------------------------------------------
-// collapse
 static int LSV_CommandThreshold(Abc_Frame_t* pAbc, int argc, char** argv)
 {
   Abc_Ntk_t* pNtk = Abc_FrameReadNtk(pAbc);
@@ -70,5 +72,6 @@ usage:
   return 1;
 
 }
+
 
 #endif // _THRESDEF_H
