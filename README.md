@@ -1,9 +1,14 @@
 # LSV_Final_Project
 - Threshold logic synthesis
 
-# Execution Command
+# Execution Command (step by step)
 - make (if wanna speed up --> use "make -j8")
 - ./abc
+- read <filename>
+- threshold_optimize <max_fanin (int)>
+
+# Execution Command (shell)
+- 
 
 # Framework
 - src 

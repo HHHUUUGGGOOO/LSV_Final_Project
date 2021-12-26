@@ -64,7 +64,7 @@ static int LSV_CommandThreshold(Abc_Frame_t* pAbc, int argc, char** argv)
   return 0;
 
 usage:
-  Abc_Print(-2, "usage: threshold_optimize [-h]\n");
+  Abc_Print(-2, "usage: threshold_optimize <max_fanin (int)> [-h]\n");
   Abc_Print(-2, "\t        execute threshold logic network optimization\n");
   Abc_Print(-2, "\t-h    : print the command usage\n");
   return 1;
