@@ -25,14 +25,23 @@
 using namespace std;
 
 //----------------------------------------------------------------------
-//    each algorithm;s function
+//    struct
+//----------------------------------------------------------------------
+struct Gate {
+  pair<Abc_Obj_t*, Abc_Obj_t*>    i_o_node; // < output_node, input_node >
+  pair<int, int>                  i_o_weight; // < o_weight, i_weight >
+};
+
+
+//----------------------------------------------------------------------
+//    each algorithm's function
 //----------------------------------------------------------------------
 void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin)
 {
   
 }
 
-void LSV_Collapse(Abc_Ntk_t* pNtk, int max_fanin);
+void LSV_Collapse(Abc_Obj_t* pObj, int max_fanin);
 bool LSV_UnateCheck(vector<vector<Abc_Obj_t*>> logic_SOP);
 bool LSV_ILPCheck(vector<vector<Abc_Obj_t*>> logic_SOP);
 void LSV_UnateSplit(vector<vector<Abc_Obj_t*>> logic_SOP, int max_fanin);
