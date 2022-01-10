@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <vector>
 
 #include "misc/vec/vec.h"
 #include "aig/hop/hop.h"
@@ -127,6 +128,9 @@ struct Abc_Time_t_
 
 struct Abc_Obj_t_     // 48/72 bytes (32-bits/64-bits)
 {
+    // 2022.01.10 : Hugo --> for collapse() hierarchical node list
+    vector<vector<Abc_Obj_t*>>  root_node_list;
+    // end
     Abc_Ntk_t *       pNtk;          // the host network
     Abc_Obj_t *       pNext;         // the next pointer in the hash table
     int               Id;            // the object ID
