@@ -43,7 +43,7 @@ void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin)
 
 Abc_Obj_t* LSV_Collapse(Abc_Obj_t* pObj, int max_fanin);
 bool LSV_UnateCheck(char * pSop);
-bool LSV_ILPCheck(char * pSop);
+vector<int> LSV_ILPCheck(char * pSop);
 vector<char*> LSV_UnateSplit(char * pSop);
 vector<char*> LSV_BinateSplit(char * pSop);
 
