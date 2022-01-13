@@ -32,6 +32,8 @@ Abc_Obj_t* LSV_Collapse(Abc_Obj_t* pObj, int max_fanin)
   Abc_Obj_t n_prime_obj = *pObj;
   Abc_Obj_t* n_prime = &n_prime_obj;
   int L = Abc_ObjFaninNum(pObj);
+  // add the root node into root_node_list
+  n_prime->root_node_list.push_back(pObj);
   // if not exceeds threshold fanin #
   for (int i = 0 ; i < pObj->vFanins.nSize ; ++i)
   {
