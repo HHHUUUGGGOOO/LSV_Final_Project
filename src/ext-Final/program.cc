@@ -169,13 +169,14 @@ vector<int> LSV_ILPCheck(char * pSop)
   
   // Create the variables : var_num + Threshold
     // weight >= 0 ; Threshold >= 0
+    // MakeIntVar --> 限定解只能是 integer
   const double infinity = solver->infinity();
-  MPVariable* const T = solver->MakeNumVar(0.0, infinity, "T");
+  MPVariable* const T = solver->MakeIntVar(0.0, infinity, "T");
   vector<MPVariable*> V[var_num];
   for (int i = 0 ; i < var_num ; ++i)
   {
     string name = "w" + to_string(i);
-    V[i] = solver->MakeNumVar(0.0, infinity, name);
+    V[i] = solver->MakeIntVar(0.0, infinity, name);
   }
 
   LOG(INFO) << "Number of variables = " << solver->NumVariables();
