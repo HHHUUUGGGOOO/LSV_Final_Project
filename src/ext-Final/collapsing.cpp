@@ -45,8 +45,7 @@ Abc_Obj_t* LSV_Collapse(Abc_Obj_t* pObj, int max_fanin)
           (Abc_ObjFanin0(cur_node)->vFanouts.nSize > 1))
       {
         // add the node into root_node_list
-        vector<Abc_Obj_t*> single_node = {cur_node};
-        n_prime->root_node_list.push_back(single_node);
+        n_prime->root_node_list.push_back(cur_node);
         break;
       }
       // if not PI and not multi-fanout
@@ -73,7 +72,10 @@ Abc_Obj_t* LSV_Collapse(Abc_Obj_t* pObj, int max_fanin)
           // update L --> sub original node, plus new node #
           L = L - 1 + new_node_num; 
           // substitution --> add the node into root_node_list
-          n_prime->root_node_list.push_back(temp_node);
+          for (int j = 0 ; j < temp_node.size() ; ++j)
+          {
+            n_prime->root_node_list.push_back(temp_node[j]);
+          }
           break;
         }
       }
