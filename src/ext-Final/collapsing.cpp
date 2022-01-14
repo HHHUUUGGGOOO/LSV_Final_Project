@@ -46,6 +46,9 @@ Abc_Obj_t* LSV_Collapse(Abc_Obj_t* pObj, int max_fanin)
       {
         // add the node into root_node_list
         n_prime->root_node_list.push_back(cur_node);
+        // add the hierarchical version
+        vector<Abc_Obj_t*> temp_node = {cur_node};
+        n_prime->root_node_list_hierar.push_back(temp_node);
         break;
       }
       // if not PI and not multi-fanout
@@ -76,6 +79,8 @@ Abc_Obj_t* LSV_Collapse(Abc_Obj_t* pObj, int max_fanin)
           {
             n_prime->root_node_list.push_back(temp_node[j]);
           }
+          // add the hierarchical version
+          n_prime->root_node_list_hierar.push_back(temp_node);
           break;
         }
       }
