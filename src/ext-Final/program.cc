@@ -212,26 +212,30 @@ vector<int> LSV_ILPCheck(char * pSop)
   // Solve
   const MPSolver::ResultStatus result_status = solver->Solve();
   // Check that the problem has an optimal solution.
-  if (result_status != MPSolver::OPTIMAL) { LOG(FATAL) << "The problem does not have an optimal solution!"; }
-
-  // Store result
-    // 需修正 : 如果一開始的變數是 negate --> 在最後 weight 要取負號, 且 Threshold 要隨之下修
-  double modify_T = 0;
-  for (int i = 0 ; i < var_num ; ++i) 
-  { 
-    double weight_i = V[i]->solution_value();
-    if (IsNegUnate[i])
-    {
-      weight_i *= (-1);
-      modify_T += weight_i;
+    // 無解 --> result_status = INFEASIBLE
+  if ((result_status == MPSolver::OPTIMAL) || (result_status == MPSolver::FEASIBLE))
+  {
+    // Store result
+      // 需修正 : 如果一開始的變數是 negate --> 在最後 weight 要取負號, 且 Threshold 要隨之下修
+    double modify_T = 0;
+    for (int i = 0 ; i < var_num ; ++i) 
+    { 
+      double weight_i = V[i]->solution_value();
+      if (IsNegUnate[i])
+      {
+        weight_i *= (-1);
+        modify_T += weight_i;
+      }
+      ans.push_back(weight_i); 
     }
-    ans.push_back(weight_i); 
+    ans.push_back(T->solution_value() + modify_T);
+    
+    // Output result
+    LOG(INFO) << "Solution: ";
+    LOG(INFO) << "Optimal objective value = " << objective->Value();
+    for (int i = 0 ; i < var_num ; ++i) { LOG(INFO) << V[i]->name() << " = " << V[i]->solution_value(); }
   }
-  ans.push_back(T->solution_value() + modify_T);
-  
-  // Output result
-  LOG(INFO) << "Solution: ";
-  LOG(INFO) << "Optimal objective value = " << objective->Value();
-  for (int i = 0 ; i < var_num ; ++i) { LOG(INFO) << V[i]->name() << " = " << V[i]->solution_value(); }
+
+  return ans;
 
 }
