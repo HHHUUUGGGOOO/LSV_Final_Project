@@ -66,15 +66,21 @@ Abc_Obj_t* LSV_Collapse(Abc_Obj_t* pObj, int max_fanin)
             can_break = false; 
           }
         }
-        // if exceeds threshold fanin #
-        if (L - 1 + new_node_num > max_fanin) { break; }
-        // if all new node are PI or multi-fanout
-        else if (can_break) { break; }
+        // if exceeds threshold fanin # --> 存當前的 node
+        if (L - 1 + new_node_num > max_fanin) 
+        {  
+          n_prime->root_node_list.push_back(cur_node);
+          vector<Abc_Obj_t*> tmp = {cur_node};
+          n_prime->root_node_list_hierar.push_back(tmp);
+          break; 
+        }
+        // else if (can_break) { break; }
         else // substitution
         {
           // update L --> sub original node, plus new node #
           L = L - 1 + new_node_num; 
           // substitution --> add the node into root_node_list
+            // no matter if all new node are PI or multi-fanout --> 加進 node_list, 要判斷是否 PI 等留給主函數
           for (int j = 0 ; j < temp_node.size() ; ++j)
           {
             n_prime->root_node_list.push_back(temp_node[j]);
