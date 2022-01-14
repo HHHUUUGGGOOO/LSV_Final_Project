@@ -55,16 +55,10 @@ Abc_Obj_t* LSV_Collapse(Abc_Obj_t* pObj, int max_fanin)
       else
       {
         int new_node_num = Abc_ObjFaninNum(cur_node);
-        bool can_break = true;
         vector<Abc_Obj_t*> temp_node;
         for (int j = 0 ; j < new_node_num ; ++j)
         {
           temp_node.push_back(Abc_ObjFanin(cur_node, j));
-          if ((Abc_ObjType(Abc_ObjFanin(cur_node, j)) != ABC_OBJ_PI) && \
-              (Abc_ObjFanin0(Abc_ObjFanin(cur_node, j)))->vFanouts.nSize <= 1) 
-          { 
-            can_break = false; 
-          }
         }
         // if exceeds threshold fanin # --> 存當前的 node
         if (L - 1 + new_node_num > max_fanin) 
@@ -74,7 +68,6 @@ Abc_Obj_t* LSV_Collapse(Abc_Obj_t* pObj, int max_fanin)
           n_prime->root_node_list_hierar.push_back(tmp);
           break; 
         }
-        // else if (can_break) { break; }
         else // substitution
         {
           // update L --> sub original node, plus new node #
