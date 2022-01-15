@@ -91,7 +91,7 @@ int main(int argc, char** argv)
   // Command : read input_file
   sprintf( Command, "read %s", argv[1] ); Cmd_CommandExecute( pAbc, Command );
   // Command : main threshold logic synthesis
-  sprintf( Command, "threshold_optimize %", argv[2] ); Cmd_CommandExecute( pAbc, Command );
+  sprintf( Command, "threshold_optimize %s", argv[2] ); Cmd_CommandExecute( pAbc, Command );
   
   // Finish
   t_final = clock();
