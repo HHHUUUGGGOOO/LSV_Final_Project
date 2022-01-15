@@ -13,6 +13,7 @@
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
+#include <time.h>
 // self-file
 #include "thresDef.h"
 // abc
@@ -68,8 +69,35 @@ struct PackageRegistrationManager
 int main(int argc, char** argv)
 {
   // setup
+  clock_t t_init, t_final;
+  t_init = clock();
   Abc_Start();
+  pAbc = Abc_FrameGetGlobalFrame();
 
+  // input command line : ./LSV_Threshold <relative_path><input_filename> <(int) max_fanin>
+  if (argc < 3)
+	{
+		cout << "usage: ./LSV_Thres <relative_path><input_filename> <(int) max_fanin>" << endl;
+		return 0;
+	}
+
+  // show arguments
+	for ( int i = 0 ; i < argc ; ++i )
+		cout << argv[i] << " ";
+	cout << endl;
+
+  // int max_fanin = stoi(string(argv[2]));
+
+  // Command : read input_file
+  sprintf( Command, "read %s", argv[1] ); Cmd_CommandExecute( pAbc, Command );
+  // Command : main threshold logic synthesis
+  sprintf( Command, "threshold_optimize %", argv[2] ); Cmd_CommandExecute( pAbc, Command );
+  
+  // Finish
+  t_final = clock();
+  cout << "=================================================================" << endl;
+  cout << "   Execution Time = " << double(t_final - t_init)/CLOCKS_PER_SEC << " (S)" << endl;
+  cout << "=================================================================" << endl;
 
   // terminate
   Abc_Stop();
