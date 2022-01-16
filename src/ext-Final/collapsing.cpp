@@ -85,6 +85,16 @@ Abc_Obj_t* LSV_Collapse(Abc_Obj_t* pObj, int max_fanin)
       }
     }
   }
+
+  // Operation 1 : 從 root_node_list 建立一個新的 Ntk, 以這些 node 為 PI 建立出 Aig (Abc_NtkToDar)
+
+
+  // Operation 2 : PI 為 Sop variable (不包含 root node), 依序往上爆出 output 的 Sop
+
+
+  // Operation 3 : 將 Sop 存到 n_prime root node's "collapsed_sop"
+
+
   // return collapsed node (pObj->root_node_list)
     // if n_prime -> root_node_list.size() > 0 --> 有 collapse 
   return n_prime;

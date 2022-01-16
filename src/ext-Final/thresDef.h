@@ -47,6 +47,7 @@ vector<int> LSV_ILPCheck(char * pSop);
 vector<char*> LSV_UnateSplit(char * pSop);
 vector<char*> LSV_BinateSplit(char * pSop);
 
+
 //----------------------------------------------------------------------
 //    add new command
 //----------------------------------------------------------------------
