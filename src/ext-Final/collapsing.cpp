@@ -357,8 +357,25 @@ Abc_Obj_t* LSV_Collapse(Abc_Obj_t* pObj, int max_fanin)
 
   // Operation 1 : 從 root_node_list 建立一個新的 Ntk, 以這些 node 為 PI 建立出 Aig (Abc_NtkToDar)
   int sop_length = n_prime->root_node_list.size();
-  Abc_Ntk_t* trans_pNtk;
-
+  Abc_Ntk_t* trans_pNtk = n_prime->pNtk;
+  // PI's vFanins --> NULL ; 他小孩的 fanout 也要切斷
+  for (int i = 1 ; i < n_prime->root_node_list.size() ; ++i)
+  { 
+    for (int j = 0 ; j < n_prime->root_node_list[i]->vFanins.nSize ; ++j)
+    {
+      Vec_IntClear(n_prime->root_node_list[i]->vFanins[j]->vFanouts);
+    }
+    Vec_IntClear(n_prime->root_node_list[i]->vFanins);
+  }
+  // 改 Abc_Ntk_t 的 vPis, vCis
+  Vec_PtrClear(trans_pNtk->vPis);
+  Vec_PtrClear(trans_pNtk->vCis);
+  for (int i = 1 ; i < n_prime->root_node_list ; ++i)
+  {
+    Vec_PtrPush(trans_pNtk->vPis, n_prime->root_node_list[i]);
+    Vec_PtrPush(trans_pNtk->vCis, n_prime->root_node_list[i]);
+  }
+  
   // Operation 2 : PI 為 Sop variable (不包含 root node), 依序往上爆出 output 的 Sop
   trans_pNtk = Abc_NtkStrash(trans_pNtk, 0, 1, 0);
     // pNtk --> pAig
