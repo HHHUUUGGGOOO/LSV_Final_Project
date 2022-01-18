@@ -224,7 +224,7 @@ void combine_fanin_sop(vector<char*>& combined_sop, vector<char*>& fanin0_sop, v
 }
 
 
-void BuildSop(Aig_Man_t* pAig, Aig_Obj_t* swapped_node, Aig_Obj_t* cur_node, vector<Aig_Obj_t*>& PI_node, int& sop_length)
+void BuildSop(Aig_Man_t* pAig, Aig_Obj_t* swapped_node, vector<Aig_Obj_t*>& PI_node, int& sop_length)
 {
   if (Aig_ObjIsTravIdCurrent(swapped_node)) { return; }
   // fMarkA = 0 --> 還不能合成為 Sop  ;  fMarkA = 1 or PI --> 可以合成做 Sop
@@ -279,13 +279,13 @@ void BuildSop(Aig_Man_t* pAig, Aig_Obj_t* swapped_node, Aig_Obj_t* cur_node, vec
   // 如果 child0 和 child1 都還沒合成 --> 繼續往 child0 traverse 
   else if (Aig_ObjIsMarkA(swapped_node->pFanin0) == 0)
   {
-    BuildSop(pAig, swapped_node->pFanin0, cur_node, PI_node, sop_length);
+    BuildSop(pAig, swapped_node->pFanin0, PI_node, sop_length);
   }
 
   // 如果 child0 合成完但 child1 還沒, 且 child1 是 PI --> 往 child1 traverse 並直接合併到目前所有 cube
   else if ((Aig_ObjIsMarkA(swapped_node->pFanin0) == 1) && (Aig_ObjIsMarkA(swapped_node->pFanin1) == 0))
   {
-    BuildSop(pAig, swapped_node->pFanin1, cur_node, PI_node, sop_length);
+    BuildSop(pAig, swapped_node->pFanin1, PI_node, sop_length);
   }
 
 }
@@ -365,20 +365,7 @@ Abc_Obj_t* LSV_Collapse(Abc_Obj_t* pObj, int max_fanin)
   Aig_Man_t* pAig = Abc_NtkToDar(trans_pNtk, 0, 1);
     // swap child --> let leftest child be the deepest 
     // ??? assume only a PO ???
-  Aig_Obj_t* cur_node = pAig->Aig_ManCo(pAig, 0);
   Aig_Obj_t* swapped_node = pAig->Aig_ManCo(pAig, 0);
-  while (cur_node != NULL)
-  {
-    if (Aig_ObjChild0(cur_node) == NULL) { break; }
-    // ??? api 的 Aig_ObjFanin0 和 Aig_ObjChild0 差別 ???
-    if (Aig_ObjLevel(Aig_ObjChild0(cur_node)) < Aig_ObjLevel(Aig_ObjChild1(cur_node)))
-    {
-      Aig_Obj_t* temp = Aig_ObjChild0(cur_node);
-      Aig_ObjChild0(cur_node) = Aig_ObjChild1(cur_node);
-      Aig_ObjChild1(cur_node) = temp;
-    }
-    cur_node = Aig_ObjChild0(cur_node);
-  }
     // 從最底下開始往上合成 Sop
       // swapped_node --> Aig tree 的 root
       // cur_node --> 最左邊底下的 child (begin to build SOP)
@@ -391,7 +378,7 @@ Abc_Obj_t* LSV_Collapse(Abc_Obj_t* pObj, int max_fanin)
   Aig_ManForEachNode(pAig, pObj, node) { Aig_ObjClearMarkA(pObj); }
   Aig_ManIncrementTravId(pAig);
     // 不考慮 xor 這種雙層電路, 所以 level 最高為 2 ?
-  BuildSop(pAig, swapped_node, cur_node, PI_node, sop_length);
+  BuildSop(pAig, swapped_node, PI_node, sop_length);
   node_to_sop = swapped_node->pSop;
   // 如果 output phase 為 neg, 記得先做 complement
   if (Aig_IsComplement(swapped_node))
