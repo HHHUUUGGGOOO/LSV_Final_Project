@@ -60,8 +60,6 @@ void cart_product(
     cart_product(rvvi, rvi, me+1, end); // add "d, e, f"
     rvi.pop_back(); // clean ME off for next round
   }
-
-
 }
 
 void CreateOffsetConstraint(char* pSop, int var_num, int cube_num, MPVariable* const T, vector<MPVariable*>& V, const double infinity, vector<MPConstraint*>& ct_off)
