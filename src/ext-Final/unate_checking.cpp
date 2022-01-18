@@ -22,12 +22,16 @@ using namespace std;
 //----------------------------------------------------------------------
 //    function definition
 //----------------------------------------------------------------------
-bool LSV_UnateCheck(char * pSop)
+bool LSV_UnateCheck(Sop pSop)
 {
-    int var_num = Abc_SopGetVarNum( pSop );
+    int var_num = Abc_SopGetVarNum( pSop.func );
     char * pCube;
-    char phase[var_num] = {'-'};
-    Abc_SopForEachCube( pSop, var_num, pCube )
+    vector<char> phase;
+    for (int i = 0; i < var_num; ++i)
+    {
+        phase.push_back('-');
+    }
+    Abc_SopForEachCube( pSop.func, var_num, pCube )
     {
         for(int i = 0; i < var_num; ++i)
         {
