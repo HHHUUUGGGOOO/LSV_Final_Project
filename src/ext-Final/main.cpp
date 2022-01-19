@@ -74,10 +74,10 @@ int main(int argc, char** argv)
   Abc_Start();
   pAbc = Abc_FrameGetGlobalFrame();
 
-  // input command line : ./LSV_Threshold <relative_path><input_filename> <(int) max_fanin>
+  // input command line : ./a.out <relative_path><input_filename> <(int) max_fanin>
   if (argc < 3)
 	{
-		cout << "usage: ./LSV_Thres <relative_path><input_filename> <(int) max_fanin>" << endl;
+		cout << "usage: ./a.out <relative_path><input_filename> <(int) max_fanin>" << endl;
 		return 0;
 	}
 
