@@ -15,7 +15,7 @@
 #include <unordered_set>
 // self-file
 #include "thresDef.h"
-#include "../../or-tools/ortools/linear_solver/linear_solver.h"
+#include "../or-tools/ortools/linear_solver/linear_solver.h"
 // abc
 
 using namespace std;
