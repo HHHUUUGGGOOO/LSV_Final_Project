@@ -64,44 +64,37 @@ struct PackageRegistrationManager
 
 
 //----------------------------------------------------------------------
-//    main function
+//    add new command
 //----------------------------------------------------------------------
-int main(int argc, char** argv)
+static int LSV_CommandThreshold(Abc_Frame_t* pAbc, int argc, char** argv)
 {
-  // setup
-  clock_t t_init, t_final;
-  t_init = clock();
-  Abc_Start();
-  pAbc = Abc_FrameGetGlobalFrame();
-
-  // input command line : ./a.out <relative_path><input_filename> <(int) max_fanin>
-  if (argc < 3)
-	{
-		cout << "usage: ./a.out <relative_path><input_filename> <(int) max_fanin>" << endl;
-		return 0;
-	}
-
-  // show arguments
-	for ( int i = 0 ; i < argc ; ++i )
-		cout << argv[i] << " ";
-	cout << endl;
-
-  // int max_fanin = stoi(string(argv[2]));
-
-  // Command : read input_file
-  sprintf( Command, "read %s", argv[1] ); Cmd_CommandExecute( pAbc, Command );
-  // Command : main threshold logic synthesis
-  sprintf( Command, "threshold_optimize %s", argv[2] ); Cmd_CommandExecute( pAbc, Command );
-  
-  // Finish
-  t_final = clock();
-  cout << "=================================================================" << endl;
-  cout << "   Execution Time = " << double(t_final - t_init)/CLOCKS_PER_SEC << " (S)" << endl;
-  cout << "=================================================================" << endl;
-
-  // terminate
-  Abc_Stop();
+  Abc_Ntk_t* pNtk = Abc_FrameReadNtk(pAbc);
+  int c;
+  Extra_UtilGetoptReset();
+  while ((c = Extra_UtilGetopt(argc, argv, "h")) != EOF)
+  {
+    switch (c)
+    {
+      case 'h':
+        goto usage;
+      default:
+        goto usage;
+    }
+  }
+  if (!pNtk)
+  {
+    Abc_Print(-1, "Empty network.\n");
+    return -1;
+  }
+  // main function
+  LSV_Threshold(pNtk, stoi(argv[1]));
   return 0;
+
+usage:
+  Abc_Print(-2, "usage: \nread <filename_with_path>\nthreshold_optimize <max_fanin (int)> [-h]\n");
+  Abc_Print(-2, "\t        execute threshold logic network optimization\n");
+  Abc_Print(-2, "\t-h    : print the command usage\n");
+  return 1;
 
 }
 

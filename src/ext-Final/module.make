@@ -1,5 +1,5 @@
 SRC += \
-    src/ext-Final/main.cpp \
+    src/ext-Final/main_exe.cpp \
     src/ext-Final/collapsing.cpp \
     src/ext-Final/program.cc \
     src/ext-Final/unate_splitting.cpp \

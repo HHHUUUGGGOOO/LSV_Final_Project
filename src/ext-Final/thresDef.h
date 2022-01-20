@@ -102,6 +102,7 @@ void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin)
                         {
                             new_gate.weight.push_back(T_weight[i]);
                             new_gate.fanin.push_back(check_list[0].i_sop[i]);
+                            collapse_list.push_back(check_list[0].i_sop[i].Obj);
                         }
                         new_gate.T = T_weight[T_weight.size() - 1];
                         gate_list.push_back(new_gate);
@@ -124,6 +125,7 @@ void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin)
                             {
                                 new_gate.fanin.push_back(Sops[0].i_sop[i]);
                                 new_gate.weight.push_back(1);
+                                collapse_list.push_back(Sops[0].i_sop[i].Obj);
                             }
                             vertex v;
                             v.new_vertex = true;
@@ -139,16 +141,180 @@ void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin)
                         // not factored
                         else if (w1.size() > 0)
                         {
-                            
+                            Gate new_gate;
+                            new_gate.name = check_list[0].o_sop;
+                            for (int i = 0; i < (w1.size() - 1); ++i)
+                            {
+                                new_gate.weight.push_back(w1[i]);
+                                new_gate.fanin.push_back(Sops[0].i_sop[i]);
+                                collapse_list.push_back(Sops[0].i_sop[i].Obj);
+                            }
+                            vertex v;
+                            v.new_vertex = true;
+                            v.Id = index;
+                            index = index + 1;
+                            new_gate.weight.push_back(w1[w1.size() - 1]);
+                            new_gate.fanin.push_back(v);
+                            new_gate.T = w1[w1.size() - 1];
+                            gate_list.push_back(new_gate);
+                            // Sop
+                            Sops[1].o_sop = v
+                            check_list.push_back(Sops[1]);
                         }
                         else if (w2.size() > 0)
                         {
-                            
+                            Gate new_gate;
+                            new_gate.name = check_list[0].o_sop;
+                            for (int i = 0; i < (w2.size() - 1); ++i)
+                            {
+                                new_gate.weight.push_back(w2[i]);
+                                new_gate.fanin.push_back(Sops[1].i_sop[i]);
+                                collapse_list.push_back(Sops[1].i_sop[i].Obj);
+                            }
+                            vertex v;
+                            v.new_vertex = true;
+                            v.Id = index;
+                            index = index + 1;
+                            new_gate.weight.push_back(w2[w2.size() - 1]);
+                            new_gate.fanin.push_back(v);
+                            new_gate.T = w2[w2.size() - 1];
+                            gate_list.push_back(new_gate);
+                            // Sop
+                            Sops[0].o_sop = v
+                            check_list.push_back(Sops[0]);
                         }
                         // not threshold at all
                         else
                         {
-                            
+                            int cube_num = Abc_SopGetCubeNum( check_list[0].func );
+                            int var_num = Abc_SopGetVarNum( check_list[0].func );
+                            if (cube_num > max_fanin)
+                            {
+                                Gate new_gate;
+                                new_gate.T = 1;
+                                new_gate.name = check_list[0].o_sop;
+                                int sp_size = cube_num/max_fanin;
+                                int remain = cube_num%max_fanin;
+                                int cur_cube;
+                                for (int i = 0; i < max_fanin; ++i)
+                                {
+                                    vertex v;
+                                    v.new_vertex = true;
+                                    v.Id = index;
+                                    index = index + 1;
+                                    
+                                    Sop new_node;
+                                    new_node.o_sop = v;
+                                    
+                                    new_gate.weight.push_back(1);
+                                    new_gate.fanin.push_back(v);
+                                    // initialization
+                                    vector<bool> care_list;
+                                    for (int i = 0; i < var_num; ++i)
+                                    {
+                                        care_list.push_back(false);
+                                    }
+                                    // processing
+                                    if (i < remain)
+                                    {
+                                        // variable list construction
+                                        for (int j = 0; j < sp_size+1; ++j)
+                                        {
+                                            for (int k = 0; k < var_num; ++k)
+                                            {
+                                                if (check_list[0].func[(i*(sp_size+1)+j)*(var_num+3) + k] != '-')
+                                                {
+                                                    care_list[k] = true;
+                                                }
+                                            }
+                                        }
+                                        vector<int> var_list;
+                                        for (int i = 0; i < var_num; ++i)
+                                        {
+                                            if (care_list[i]) {var_list.push_back(i);}
+                                        }
+                                        int length = var_list.size() + 3;
+                                        // Sop
+                                        for (int j = 0; j < sp_size+1; ++j)
+                                        {
+                                            for (int k = 0; k < var_list.size(); ++k)
+                                            {
+                                                new_node.func[j*(length) + k] = check_list[0].func[(i*(sp_size+1)+j)*(var_num+3) + var_list[k]];
+                                            }
+                                            new_node.func[j*(length) + var_list.size()] = check_list[0].func[var_num];
+                                            new_node.func[j*(length) + var_list.size() + 1] = check_list[0].func[var_num + 1];
+                                            new_node.func[j*(length) + var_list.size() + 2] = check_list[0].func[var_num + 2];
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // variable list construction
+                                        for (int j = 0; j < sp_size; ++j)
+                                        {
+                                            for (int k = 0; k < var_num; ++k)
+                                            {
+                                                if (check_list[0].func[(i*sp_size + j + remain)*(var_num+3) + k] != '-')
+                                                {
+                                                    care_list[k] = true;
+                                                }
+                                            }
+                                        }
+                                        vector<int> var_list;
+                                        for (int i = 0; i < var_num; ++i)
+                                        {
+                                            if (care_list[i]) {var_list.push_back(i);}
+                                        }
+                                        int length = var_list.size() + 3;
+                                        // Sop
+                                        for (int j = 0; j < sp_size; ++j)
+                                        {
+                                            for (int k = 0; k < var_list.size(); ++k)
+                                            {
+                                                new_node.func[j*(length) + k] = check_list[0].func[(i*sp_size + j + remain)*(var_num+3) + var_list[k]];
+                                            }
+                                            new_node.func[j*(length) + var_list.size()] = check_list[0].func[var_num];
+                                            new_node.func[j*(length) + var_list.size() + 1] = check_list[0].func[var_num + 1];
+                                            new_node.func[j*(length) + var_list.size() + 2] = check_list[0].func[var_num + 2];
+                                        }
+                                    }
+                                    check_list.push_back(new_node);
+                                }
+                            }
+                            else
+                            {
+                                char * pCube;
+                                Gate new_gate;
+                                new_gate.T = 1;
+                                new_gate.name = check_list[0].o_sop;
+                                Abc_SopForEachCube( pSop, var_num, pCube )
+                                {
+                                    vertex v;
+                                    v.new_vertex = true;
+                                    v.Id = index;
+                                    index = index + 1;
+                                    
+                                    Sop new_node;
+                                    new_node.o_sop = v;
+                                    
+                                    new_gate.weight.push_back(1);
+                                    new_gate.fanin.push_back(v);
+                                    
+                                    int ite = 0;
+                                    for (int i = 0; i < var_num; ++i)
+                                    {
+                                        if (pCube[i] != '-')
+                                        {
+                                            new_node.func[ite] = pCube[i];
+                                            new_node.i_sop.push_back(check_list[0].i_sop[i]);
+                                            ite = ite + 1;
+                                        }
+                                    }
+                                    new_node.func[ite] = pCube[var_num];
+                                    new_node.func[ite + 1] = pCube[var_num + 1];
+                                    new_node.func[ite + 2] = pCube[var_num + 2];
+                                    check_list.push_back(new_node);
+                                }
+                            }
                         }
                     }
                 }
@@ -189,41 +355,6 @@ vector<int> LSV_ILPCheck(char * pSop);
 bool LSV_UnateSplit(Sop pSop, vector<Sop>& new_node);
 void LSV_BinateSplit(Sop pSop, vector<Sop>& new_node, int maxfanin);
 
-
-//----------------------------------------------------------------------
-//    add new command
-//----------------------------------------------------------------------
-static int LSV_CommandThreshold(Abc_Frame_t* pAbc, int argc, char** argv)
-{
-  Abc_Ntk_t* pNtk = Abc_FrameReadNtk(pAbc);
-  int c;
-  Extra_UtilGetoptReset();
-  while ((c = Extra_UtilGetopt(argc, argv, "h")) != EOF)
-  {
-    switch (c)
-    {
-      case 'h':
-        goto usage;
-      default:
-        goto usage;
-    }
-  }
-  if (!pNtk)
-  {
-    Abc_Print(-1, "Empty network.\n");
-    return -1;
-  }
-  // main function
-  LSV_Threshold(pNtk, stoi(argv[1]));
-  return 0;
-
-usage:
-  Abc_Print(-2, "usage: threshold_optimize <max_fanin (int)> [-h]\n");
-  Abc_Print(-2, "\t        execute threshold logic network optimization\n");
-  Abc_Print(-2, "\t-h    : print the command usage\n");
-  return 1;
-
-}
 
 
 #endif // _THRESDEF_H
