@@ -2,8 +2,6 @@
 - Threshold logic synthesis
 
 # Execution Command (step by step)
-- cd abc
-- make 
 - cd ../or-tools
 - make third_party
 - cd ..
