@@ -8,9 +8,9 @@
 - make third_party
 - cd ..
 - make 
-- cd src/ext-Final
-- g++ main.cpp
-- ./a.out <input_filename_path> <max_fanin_int>
+- ./abc
+- read <filename_with_path>
+- threshold_optimize <max_fanin_num>
 
 # Framework
 - src 
