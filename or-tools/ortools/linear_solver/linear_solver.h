@@ -144,22 +144,22 @@
 #include <utility>
 #include <vector>
 
-#include "absl/base/port.h"
-#include "absl/container/flat_hash_map.h"
-#include "absl/flags/parse.h"
-#include "absl/flags/usage.h"
-#include "absl/status/status.h"
-#include "absl/strings/match.h"
-#include "absl/strings/str_format.h"
-#include "absl/types/optional.h"
-#include "ortools/base/integral_types.h"
-#include "ortools/base/logging.h"
-#include "ortools/base/macros.h"
-#include "ortools/base/timer.h"
-#include "ortools/linear_solver/linear_expr.h"
-#include "ortools/linear_solver/linear_solver.pb.h"
-#include "ortools/linear_solver/linear_solver_callback.h"
-#include "ortools/port/proto_utils.h"
+#include "../../absl/base/port.h"
+#include "../../absl/container/flat_hash_map.h"
+#include "../../bsl/flags/parse.h"
+#include "../../absl/flags/usage.h"
+#include "../../absl/status/status.h"
+#include "../../absl/strings/match.h"
+#include "../../absl/strings/str_format.h"
+#include "../../absl/types/optional.h"
+#include "../../ortools/base/integral_types.h"
+#include "../../ortools/base/logging.h"
+#include "../../ortools/base/macros.h"
+#include "../../ortools/base/timer.h"
+#include "../../ortools/linear_solver/linear_expr.h"
+#include "../../ortools/linear_solver/linear_solver.pb.h"
+#include "../../ortools/linear_solver/linear_solver_callback.h"
+#include "../../ortools/port/proto_utils.h"
 
 ABSL_DECLARE_FLAG(bool, linear_solver_enable_verbose_output);
 
