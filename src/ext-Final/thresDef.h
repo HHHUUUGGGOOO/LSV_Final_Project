@@ -347,6 +347,43 @@ void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin)
             }
         }
     }
+    // print
+    /*
+     OUTPUT TVALUE
+     I1 I2 I3 ... IN
+     W1 W2 W3 ... WN
+     */
+    int gate_num = gate_list.size();
+    for (int i = 0; i < gate_num; ++i)
+    {
+        if (gate_list[i].name.new_vertex)
+        {
+            printf("%d %d \n", gate_list[i].name.Id, gate_list[i].T);
+        }
+        else
+        {
+            printf("*%d %d \n", gate_list[i].name.Obj.Id, gate_list[i].T);
+        }
+        
+        int gate_size = gate_list[i].fanin.size();
+        for (int j = 0; j < gate_size; ++j)
+        {
+            if (gate_list[i].fanin[j].new_vertex)
+            {
+                printf("%d ", gate_list[i].fanin[j].Id);
+            }
+            else
+            {
+                printf("*%d ", gate_list[i].fanin[j].Obj.Id);
+            }
+        }
+        printf("\n");
+        for (int j = 0; j < gate_size; ++j)
+        {
+            printf("%d ", gate_list[i].weight[j]);
+        }
+        printf("\n\n");
+    }
 }
 
 Abc_Obj_t* LSV_Collapse(Abc_Obj_t* pObj, int max_fanin);
