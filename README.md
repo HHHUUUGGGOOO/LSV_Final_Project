@@ -26,5 +26,5 @@
 
 #  Note
 - Ensure the environment has installed "cmake"
-- "abcl" package needs to be installed (git clone https://github.com/abseil/abseil-cpp.git)
+- "abcl" package needs to be installed (https://reurl.cc/GoEmWG)
 
