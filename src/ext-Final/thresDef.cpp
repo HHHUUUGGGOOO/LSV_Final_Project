@@ -78,8 +78,8 @@ struct Gate {
 static int LSV_CommandThreshold(Abc_Frame_t* pAbc, int argc, char** argv);
 Sop_prime LSV_Collapse(Abc_Obj_t* pObj, int max_fanin);
 bool LSV_UnateCheck(Sop pSop);
-bool LSV_UnateSplit(Sop pSop, vector<Sop>& new_node);
-void LSV_BinateSplit(Sop pSop, vector<Sop>& new_node, int maxfanin, int& cur_fanin);
+bool LSV_UnateSplit(Sop pSop, vector<Sop_prime>& new_node);
+void LSV_BinateSplit(Sop pSop, vector<Sop_prime>& new_node, int maxfanin, int& cur_fanin);
 void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin);
 
 
@@ -109,7 +109,37 @@ struct PackageRegistrationManager
 typedef std::vector<int> Vi;
 typedef std::vector<Vi> Vvi;
 
+//----------------------------------------------------------------------
+//    main function : LSV_UnateCheck
+//----------------------------------------------------------------------
+bool LSV_UnateCheck(Sop pSop)
+{
+    int var_num = Abc_SopGetVarNum( pSop.func );
+    char * pCube;
+    vector<char> phase;
+    for (int i = 0; i < var_num; ++i)
+    {
+        phase.push_back('-');
+    }
+    Abc_SopForEachCube( pSop.func, var_num, pCube )
+    {
+        for(int i = 0; i < var_num; ++i)
+        {
+            if (phase[i] == '-') {phase[i] = pCube[i];}
 
+            else if (phase[i] == '0')
+            {
+                if (pCube[i] == '1') {return false;}
+            }
+            else if (phase[i] == '1')
+            {
+                if (pCube[i] == '0') {return false;}
+            }
+            else {return false;}
+        }
+    }
+    return true;
+}
 //----------------------------------------------------------------------
 //    main function : LSV_BinateSplit
 //----------------------------------------------------------------------
@@ -311,39 +341,6 @@ void LSV_BinateSplit(Sop pSop, vector<Sop_prime>& new_node, int maxfanin, int& c
     if (LSV_UnateCheck(sopp)) {new_node.push_back(sop_p);}
     else {LSV_BinateSplit(sopp, new_node, maxfanin, cur_fanin);}
 }
-
-//----------------------------------------------------------------------
-//    main function : LSV_UnateCheck
-//----------------------------------------------------------------------
-bool LSV_UnateCheck(Sop pSop)
-{
-    int var_num = Abc_SopGetVarNum( pSop.func );
-    char * pCube;
-    vector<char> phase;
-    for (int i = 0; i < var_num; ++i)
-    {
-        phase.push_back('-');
-    }
-    Abc_SopForEachCube( pSop.func, var_num, pCube )
-    {
-        for(int i = 0; i < var_num; ++i)
-        {
-            if (phase[i] == '-') {phase[i] = pCube[i];}
-
-            else if (phase[i] == '0')
-            {
-                if (pCube[i] == '1') {return false;}  
-            }
-            else if (phase[i] == '1')
-            {
-                if (pCube[i] == '0') {return false;}   
-            }
-            else {return false;}
-        }
-    }
-    return true;
-}
-
 
 //----------------------------------------------------------------------
 //    main function : LSV_UnateSplit
@@ -690,7 +687,7 @@ Vec_Ptr_t* multi_cube_complement(Vec_Ptr_t* sop_list, int sop_length)
 {
   // int = 0 --> offset ; int = 1 --> onset ; int = 2 --> don't care
   vector<int> onset_or_offset(sop_length, 2);
-  vector<vector<int>> cube_idx;
+  vector<vector<int> > cube_idx;
   for (int i = 0 ; i < sop_list->nSize ; ++i)
   {
     vector<int> temp_idx;
@@ -734,7 +731,7 @@ void combine_fanin_sop(Vec_Ptr_t* combined_sop, Vec_Ptr_t* fanin0_sop, Vec_Ptr_t
 {
   // int = 0 --> offset ; int = 1 --> onset ; int = 2 --> don't care
   vector<int> onset_or_offset(sop_length, 2);
-  vector<vector<int>> cube_idx_0, cube_idx_1;
+  vector<vector<int> > cube_idx_0, cube_idx_1;
   for (int i = 0 ; i < fanin0_sop->nSize ; ++i)
   {
     vector<int> temp_idx;
@@ -756,11 +753,13 @@ void combine_fanin_sop(Vec_Ptr_t* combined_sop, Vec_Ptr_t* fanin0_sop, Vec_Ptr_t
     cube_idx_1.push_back(temp_idx);
   }
   // 同 program.cc 作法, 先不管每個 lit 的 phase, 做 cart_product
-  vector<vector<int>> temp_ans;
+  vector<vector<int> > temp_ans;
   for (int i = 0 ; i < fanin0_sop->nSize ; ++i)
   {
-    vector<vector<int>> cube_idx_0_temp = {cube_idx_0[i]};
-    vector<vector<int>> cube_idx;
+    vector<vector<int> > cube_idx_0_temp;
+      for (int j = 0 ; j < cube_idx_0.size() ; ++j)
+          cube_idx_0_temp.push_back(cube_idx_0[j]);
+    vector<vector<int> > cube_idx;
     cube_idx.insert(cube_idx.end(), cube_idx_0_temp.begin(), cube_idx_0_temp.end());
     cube_idx.insert(cube_idx.end(), cube_idx_1.begin(), cube_idx_1.end());
     
@@ -1047,7 +1046,7 @@ void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin)
                 pSop.i_sop = check_list[0].i_sop;
                 pSop.func  = check_list[0].func;
                 //-------------------------------------------------//
-                if (LSV_UnateCheck(pSop.func))
+                if (LSV_UnateCheck(pSop))
                 {
                     vector<int> T_weight;
                     T_weight = LSV_ILPCheck(pSop.func);
@@ -1072,7 +1071,7 @@ void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin)
                         factored = LSV_UnateSplit(pSop, Sops);
                         vector<int> w1, w2; // weight vector of split nodes
                         //-------------- array -> char* -------------------//
-                        char * func1, func2;
+                        char * func1, * func2;
                         func1  = Sops[0].func;
                         func2  = Sops[1].func;
                         //-------------------------------------------------//
@@ -1120,7 +1119,7 @@ void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin)
                             new_gate.T = w1[w1.size() - 1];
                             gate_list.push_back(new_gate);
                             // Sop
-                            Sops[1].o_sop = v
+                            Sops[1].o_sop = v;
                             check_list.push_back(Sops[1]);
                         }
                         else if (w2.size() > 0)
@@ -1142,7 +1141,7 @@ void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin)
                             new_gate.T = w2[w2.size() - 1];
                             gate_list.push_back(new_gate);
                             // Sop
-                            Sops[0].o_sop = v
+                            Sops[0].o_sop = v;
                             check_list.push_back(Sops[0]);
                         }
                         // not threshold at all
@@ -1165,7 +1164,7 @@ void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin)
                                     v.Id = index;
                                     index = index + 1;
                                     
-                                    Sop new_node;
+                                    Sop_prime new_node;
                                     new_node.o_sop = v;
                                     
                                     new_gate.weight.push_back(1);
@@ -1248,14 +1247,14 @@ void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin)
                                 Gate new_gate;
                                 new_gate.T = 1;
                                 new_gate.name = check_list[0].o_sop;
-                                Abc_SopForEachCube( pSop, var_num, pCube )
+                                Abc_SopForEachCube( pSop.func, var_num, pCube )
                                 {
                                     vertex v;
                                     v.new_vertex = true;
                                     v.Id = index;
                                     index = index + 1;
                                     
-                                    Sop new_node;
+                                    Sop_prime new_node;
                                     new_node.o_sop = v;
                                     
                                     new_gate.weight.push_back(1);
@@ -1284,7 +1283,8 @@ void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin)
                 else
                 {
                     vector<Sop_prime> Sops;
-                    LSV_BinateSplit(pSop, Sops, max_fanin, 0);
+                    int cnt = 0;
+                    LSV_BinateSplit(pSop, Sops, max_fanin, cnt);
                     int     sop_num = Sops.size();
                     Gate    new_gate;
                     new_gate.name   = pSop.o_sop;
@@ -1322,7 +1322,7 @@ void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin)
         }
         else
         {
-            printf("*%d %d \n", gate_list[i].name.Obj.Id, gate_list[i].T);
+            printf("*%d %d \n", gate_list[i].name.Obj->Id, gate_list[i].T);
         }
         
         int gate_size = gate_list[i].fanin.size();
@@ -1334,7 +1334,7 @@ void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin)
             }
             else
             {
-                printf("*%d ", gate_list[i].fanin[j].Obj.Id);
+                printf("*%d ", gate_list[i].fanin[j].Obj->Id);
             }
         }
         printf("\n");
