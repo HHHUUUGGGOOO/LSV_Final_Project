@@ -17,10 +17,13 @@
 // abc
 
 using namespace std;
----------------------------------------
+
+extern ThresDef *thresDef;
+
+//---------------------------------------
 //    function definition
 //----------------------------------------------------------------------
-void LSV_BinateSplit(Sop pSop, vector<Sop_prime>& new_node, int maxfanin, int& cur_fanin)
+ThresDef::void LSV_BinateSplit(Sop pSop, vector<Sop_prime>& new_node, int maxfanin, int& cur_fanin)
 {
     int var_num = Abc_SopGetVarNum( pSop.func );
     int cube_num = Abc_SopGetCubeNum( pSop.func );

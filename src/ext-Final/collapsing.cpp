@@ -19,6 +19,8 @@
 
 using namespace std;
 
+extern ThresDef *thresDef;
+
 /*=== src/base/abci/abcDar.c ==========================================*/
 extern "C"
 {
@@ -312,7 +314,7 @@ void BuildSop(Aig_Man_t* pAig, Aig_Obj_t* swapped_node, vector<Aig_Obj_t*>& PI_n
 
 
 
-Sop_prime Lsv_NtkOrBidec(Abc_Obj_t* pObj, int max_fanin)
+ThresDef::Sop_prime Lsv_NtkOrBidec(Abc_Obj_t* pObj, int max_fanin)
 {
   // threshold fanin # > 0
   assert (max_fanin > 0);
