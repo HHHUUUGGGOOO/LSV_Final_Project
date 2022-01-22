@@ -24,6 +24,8 @@
 
 using namespace std;
 
+extern vector<int> LSV_ILPCheck(char * pSop);
+
 //----------------------------------------------------------------------
 //    struct
 //----------------------------------------------------------------------
@@ -385,7 +387,7 @@ void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin)
 
 Sop_prime LSV_Collapse(Abc_Obj_t* pObj, int max_fanin);
 bool LSV_UnateCheck(Sop pSop);
-vector<int> LSV_ILPCheck(char * pSop);
+// vector<int> LSV_ILPCheck(char * pSop);
 bool LSV_UnateSplit(Sop pSop, vector<Sop>& new_node);
 void LSV_BinateSplit(Sop pSop, vector<Sop>& new_node, int maxfanin, int& cur_fanin);
 
