@@ -18,11 +18,12 @@
 
 using namespace std;
 
+extern ThresDef *thresDef;
 
 //----------------------------------------------------------------------
 //    function definition
 //----------------------------------------------------------------------
-bool LSV_UnateCheck(Sop pSop)
+ThresDef::bool LSV_UnateCheck(Sop pSop)
 {
     int var_num = Abc_SopGetVarNum( pSop.func );
     char * pCube;

@@ -18,11 +18,12 @@
 
 using namespace std;
 
+extern ThresDef *thresDef;
 
 //----------------------------------------------------------------------
 //    function definition
 //----------------------------------------------------------------------
-bool LSV_UnateSplit(Sop pSop, vector<Sop_prime>& new_node)    // return true if factor
+ThresDef::bool LSV_UnateSplit(Sop pSop, vector<Sop_prime>& new_node)    // return true if factor
 {
     int var_num = Abc_SopGetVarNum( pSop.func );
     int size = Abc_SopGetCubeNum( pSop.func );

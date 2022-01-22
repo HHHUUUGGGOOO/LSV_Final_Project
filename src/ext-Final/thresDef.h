@@ -24,11 +24,7 @@
 
 using namespace std;
 
-extern Sop_prime LSV_Collapse(Abc_Obj_t* pObj, int max_fanin);
-extern bool LSV_UnateCheck(Sop pSop);
 extern vector<int> LSV_ILPCheck(char * pSop);
-extern bool LSV_UnateSplit(Sop pSop, vector<Sop>& new_node);
-extern void LSV_BinateSplit(Sop pSop, vector<Sop>& new_node, int maxfanin, int& cur_fanin);
 
 //----------------------------------------------------------------------
 //    struct
@@ -58,6 +54,21 @@ struct Gate {
     vector<int>         weight; // weight of each fanin
 };
 
+extern ThresDef *thresDef;
+
+class ThresDef
+{
+    public:
+        ThresDef();
+        ~ThresDef();
+
+        /*========== whole process ===========*/
+        Sop_prime LSV_Collapse(Abc_Obj_t* pObj, int max_fanin);
+        bool LSV_UnateCheck(Sop pSop);
+        bool LSV_UnateSplit(Sop pSop, vector<Sop>& new_node);
+        void LSV_BinateSplit(Sop pSop, vector<Sop>& new_node, int maxfanin, int& cur_fanin);
+
+};
 
 //----------------------------------------------------------------------
 //    each algorithm's function
@@ -389,11 +400,6 @@ void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin)
     }
 }
 
-// Sop_prime LSV_Collapse(Abc_Obj_t* pObj, int max_fanin);
-// bool LSV_UnateCheck(Sop pSop);
-// vector<int> LSV_ILPCheck(char * pSop);
-// bool LSV_UnateSplit(Sop pSop, vector<Sop>& new_node);
-// void LSV_BinateSplit(Sop pSop, vector<Sop>& new_node, int maxfanin, int& cur_fanin);
 
 
 
