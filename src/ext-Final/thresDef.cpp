@@ -12,19 +12,118 @@
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
-#include <assert.h>
-// self-file
-#include "thresDef.h"
 // abc
+#include "base/abc/abc.h"
+#include "base/main/main.h"
+#include "base/main/mainInt.h"
+#include "misc/util/abc_global.h"
 
 using namespace std;
 
-extern ThresDef *thresDef;
+extern vector<int> LSV_ILPCheck(char * pSop);
 
 /*=== src/base/abci/abcDar.c ==========================================*/
 extern "C"
 {
+    // Abc_Ntk_t_ --> Aig_Man_t (src/base/abci/abcDar.c)
     Aig_Man_t *  Abc_NtkToDar( Abc_Ntk_t * pNtk, int fExors, int fRegisters );
+
+    // procedures to start and stop the ABC framework
+    // (should be called before and after the ABC procedures are called)
+    void   Abc_Start();
+    void   Abc_Stop();
+
+    // procedures to get the ABC framework and execute commands in it
+    typedef struct Abc_Frame_t_ Abc_Frame_t;
+    Abc_Frame_t * Abc_FrameGetGlobalFrame();
+
+    // used in "sprintf (refer to template in Google drive)" --> execute "command in abc"
+    // work like ".script" --> automatically execute all operation
+    int    Cmd_CommandExecute( Abc_Frame_t * pAbc, const char * sCommand );
+}
+
+Abc_Frame_t * pAbc = 0;
+
+//----------------------------------------------------------------------
+//    struct
+//----------------------------------------------------------------------
+struct vertex {
+    bool        new_vertex; // the vertex is new or not
+    int         Id;         // only has meaning if new_vertex
+    Abc_Obj_t*  Obj;        // only has meaning if !new_vertex
+};
+
+struct Sop {
+    vertex          o_sop;      // the output of the sop
+    vector<vertex>  i_sop;      // fanin of the sop
+    char*           func;       // the sop function
+};
+
+struct Sop_prime {
+    vertex          o_sop;      // the output of the sop
+    vector<vertex>  i_sop;      // fanin of the sop
+    char            func[100];  // the sop function
+};
+
+struct Gate {
+    vertex              name;   // node name
+    int                 T;      // threshold value
+    vector<vertex>      fanin;  // fanin list
+    vector<int>         weight; // weight of each fanin
+};
+
+//----------------------------------------------------------------------
+//    add new command
+//----------------------------------------------------------------------
+void init(Abc_Frame_t* pAbc)
+{
+  Cmd_CommandAdd(pAbc, "LSV", "threshold_optimize", LSV_CommandThreshold, 0);
+}
+
+void destroy(Abc_Frame_t* pAbc) {}
+
+Abc_FrameInitializer_t frame_initializer = { init, destroy };
+
+struct PackageRegistrationManager
+{
+  PackageRegistrationManager() { Abc_FrameAddInitializer(&frame_initializer); }
+} lsvPackageRegistrationManager;
+
+
+//----------------------------------------------------------------------
+//    add new command
+//----------------------------------------------------------------------
+
+int LSV_CommandThreshold(Abc_Frame_t* pAbc, int argc, char** argv)
+{
+  Abc_Ntk_t* pNtk = Abc_FrameReadNtk(pAbc);
+  int c;
+  Extra_UtilGetoptReset();
+  while ((c = Extra_UtilGetopt(argc, argv, "h")) != EOF)
+  {
+    switch (c)
+    {
+      case 'h':
+        goto usage;
+      default:
+        goto usage;
+    }
+  }
+  if (!pNtk)
+  {
+    Abc_Print(-1, "Empty network.\n");
+    return -1;
+  }
+  // main function
+  LSV_Threshold(pNtk, stoi(argv[1]));
+  return 0;
+
+usage:
+  Abc_Print(-2, "usage: \nread <filename_with_path>\nthreshold_optimize <max_fanin (int)> [-h]\n");
+  Abc_Print(-2, "\t        execute threshold logic network optimization\n");
+  Abc_Print(-2, "\t-h    : print the command usage\n");
+  return 1;
+
 }
 
 //----------------------------------------------------------------------
@@ -38,7 +137,7 @@ typedef std::vector<Vi> Vvi;
 //----------------------------------------------------------------------
 //    main function : LSV_BinateSplit
 //----------------------------------------------------------------------
-ThresDef::void LSV_BinateSplit(Sop pSop, vector<Sop_prime>& new_node, int maxfanin, int& cur_fanin)
+void LSV_BinateSplit(Sop pSop, vector<Sop_prime>& new_node, int maxfanin, int& cur_fanin)
 {
     int var_num = Abc_SopGetVarNum( pSop.func );
     int cube_num = Abc_SopGetCubeNum( pSop.func );
@@ -240,7 +339,7 @@ ThresDef::void LSV_BinateSplit(Sop pSop, vector<Sop_prime>& new_node, int maxfan
 //----------------------------------------------------------------------
 //    main function : LSV_UnateCheck
 //----------------------------------------------------------------------
-ThresDef::bool LSV_UnateCheck(Sop pSop)
+bool LSV_UnateCheck(Sop pSop)
 {
     int var_num = Abc_SopGetVarNum( pSop.func );
     char * pCube;
@@ -274,7 +373,7 @@ ThresDef::bool LSV_UnateCheck(Sop pSop)
 //    main function : LSV_UnateSplit
 //----------------------------------------------------------------------
 
-ThresDef::bool LSV_UnateSplit(Sop pSop, vector<Sop_prime>& new_node)    // return true if factor
+bool LSV_UnateSplit(Sop pSop, vector<Sop_prime>& new_node)    // return true if factor
 {
     int var_num = Abc_SopGetVarNum( pSop.func );
     int size = Abc_SopGetCubeNum( pSop.func );
@@ -792,7 +891,7 @@ void BuildSop(Aig_Man_t* pAig, Aig_Obj_t* swapped_node, vector<Aig_Obj_t*>& PI_n
 
 
 
-ThresDef::Sop_prime Lsv_NtkOrBidec(Abc_Obj_t* pObj, int max_fanin)
+Sop_prime Lsv_NtkOrBidec(Abc_Obj_t* pObj, int max_fanin)
 {
   // threshold fanin # > 0
   assert (max_fanin > 0);
