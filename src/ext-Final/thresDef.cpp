@@ -76,11 +76,11 @@ struct Gate {
 //    declare new function
 //----------------------------------------------------------------------
 static int LSV_CommandThreshold(Abc_Frame_t* pAbc, int argc, char** argv);
-static Sop_prime LSV_Collapse(Abc_Obj_t* pObj, int max_fanin);
-static bool LSV_UnateCheck(Sop pSop);
-static bool LSV_UnateSplit(Sop pSop, vector<Sop_prime>& new_node);
-static void LSV_BinateSplit(Sop pSop, vector<Sop_prime>& new_node, int maxfanin, int& cur_fanin);
-static void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin);
+Sop_prime LSV_Collapse(Abc_Obj_t* pObj, int max_fanin);
+bool LSV_UnateCheck(Sop pSop);
+bool LSV_UnateSplit(Sop pSop, vector<Sop_prime>& new_node);
+void LSV_BinateSplit(Sop pSop, vector<Sop_prime>& new_node, int maxfanin, int& cur_fanin);
+void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin);
 
 
 //----------------------------------------------------------------------
@@ -866,7 +866,7 @@ void BuildSop(Aig_Man_t* pAig, Aig_Obj_t* swapped_node, vector<Aig_Obj_t*>& PI_n
 
 
 
-Sop_prime Lsv_Collapse(Abc_Obj_t* pObj, int max_fanin)
+Sop_prime LSV_Collapse(Abc_Obj_t* pObj, int max_fanin)
 {
   // threshold fanin # > 0
   assert (max_fanin > 0);
