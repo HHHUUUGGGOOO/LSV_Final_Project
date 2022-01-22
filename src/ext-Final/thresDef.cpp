@@ -73,8 +73,20 @@ struct Gate {
 };
 
 //----------------------------------------------------------------------
+//    declare new function
+//----------------------------------------------------------------------
+static int LSV_CommandThreshold(Abc_Frame_t* pAbc, int argc, char** argv);
+Sop_prime LSV_Collapse(Abc_Obj_t* pObj, int max_fanin);
+bool LSV_UnateCheck(Sop pSop);
+bool LSV_UnateSplit(Sop pSop, vector<Sop>& new_node);
+void LSV_BinateSplit(Sop pSop, vector<Sop>& new_node, int maxfanin, int& cur_fanin);
+void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin);
+
+
+//----------------------------------------------------------------------
 //    add new command
 //----------------------------------------------------------------------
+
 void init(Abc_Frame_t* pAbc)
 {
   Cmd_CommandAdd(pAbc, "LSV", "threshold_optimize", LSV_CommandThreshold, 0);
@@ -89,42 +101,6 @@ struct PackageRegistrationManager
   PackageRegistrationManager() { Abc_FrameAddInitializer(&frame_initializer); }
 } lsvPackageRegistrationManager;
 
-
-//----------------------------------------------------------------------
-//    add new command
-//----------------------------------------------------------------------
-
-int LSV_CommandThreshold(Abc_Frame_t* pAbc, int argc, char** argv)
-{
-  Abc_Ntk_t* pNtk = Abc_FrameReadNtk(pAbc);
-  int c;
-  Extra_UtilGetoptReset();
-  while ((c = Extra_UtilGetopt(argc, argv, "h")) != EOF)
-  {
-    switch (c)
-    {
-      case 'h':
-        goto usage;
-      default:
-        goto usage;
-    }
-  }
-  if (!pNtk)
-  {
-    Abc_Print(-1, "Empty network.\n");
-    return -1;
-  }
-  // main function
-  LSV_Threshold(pNtk, stoi(argv[1]));
-  return 0;
-
-usage:
-  Abc_Print(-2, "usage: \nread <filename_with_path>\nthreshold_optimize <max_fanin (int)> [-h]\n");
-  Abc_Print(-2, "\t        execute threshold logic network optimization\n");
-  Abc_Print(-2, "\t-h    : print the command usage\n");
-  return 1;
-
-}
 
 //----------------------------------------------------------------------
 //    Type define
@@ -891,7 +867,7 @@ void BuildSop(Aig_Man_t* pAig, Aig_Obj_t* swapped_node, vector<Aig_Obj_t*>& PI_n
 
 
 
-Sop_prime Lsv_NtkOrBidec(Abc_Obj_t* pObj, int max_fanin)
+Sop_prime Lsv_Collapse(Abc_Obj_t* pObj, int max_fanin)
 {
   // threshold fanin # > 0
   assert (max_fanin > 0);
@@ -1368,4 +1344,41 @@ void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin)
         }
         printf("\n\n");
     }
+}
+
+
+//----------------------------------------------------------------------
+//    add new command
+//----------------------------------------------------------------------
+
+int LSV_CommandThreshold(Abc_Frame_t* pAbc, int argc, char** argv)
+{
+  Abc_Ntk_t* pNtk = Abc_FrameReadNtk(pAbc);
+  int c;
+  Extra_UtilGetoptReset();
+  while ((c = Extra_UtilGetopt(argc, argv, "h")) != EOF)
+  {
+    switch (c)
+    {
+      case 'h':
+        goto usage;
+      default:
+        goto usage;
+    }
+  }
+  if (!pNtk)
+  {
+    Abc_Print(-1, "Empty network.\n");
+    return -1;
+  }
+  // main function
+  LSV_Threshold(pNtk, stoi(argv[1]));
+  return 0;
+
+usage:
+  Abc_Print(-2, "usage: \nread <filename_with_path>\nthreshold_optimize <max_fanin (int)> [-h]\n");
+  Abc_Print(-2, "\t        execute threshold logic network optimization\n");
+  Abc_Print(-2, "\t-h    : print the command usage\n");
+  return 1;
+
 }
