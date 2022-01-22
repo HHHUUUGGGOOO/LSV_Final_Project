@@ -87,7 +87,11 @@ static int LSV_CommandThreshold(Abc_Frame_t* pAbc, int argc, char** argv)
     return -1;
   }
   // main function
-  LSV_Threshold(pNtk, stoi(argv[1]));
+  // LSV_Threshold(pNtk, stoi(argv[1]));
+  cout << "==========================" << endl;
+  cout << "argv[1] : " << stoi(argv[1]) << endl;
+  cout << "==========================" << endl;
+  // Abc_Obj_t* LSV_Collapse(Abc_Obj_t* pObj, int max_fanin);
   return 0;
 
 usage:
