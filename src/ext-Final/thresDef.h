@@ -62,7 +62,7 @@ void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin)
     int                 index = 0;
     Abc_Obj_t*          Po;
     vector<Abc_Obj_t*>  collapse_list;
-    vector<Sop>         check_list;
+    vector<Sop_prime>   check_list;
     vector<Gate>        gate_list;
     
     Abc_NtkForEachCo(pNtk, Po, i)
@@ -70,45 +70,33 @@ void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin)
         collapse_list.push_back(Po);
         while(collapse_list.size() > 0)
         {
-            Abc_Obj_t* c_node;
-            c_node = LSV_Collapse(collapse_list[0], max_fanin);
-            collapse_list.erase(collapse_list.begin());
-            if ((c_node -> root_node_list).size() == 1) {continue;}
-            
-            // Abc_Obj_t* to vertex
-            vertex cv_node;
-            cv_node.new_vertex  = false;
-            cv_node.Obj         = c_node;
-            
             // Sop construction
-            Sop split_node;
-            split_node.func     = c_node -> collapsed_sop;
-            split_node.o_sop    = cv_node;
-            for (int i = 1; i < (c_node -> root_node_list).size(); ++i)
-            {
-                vertex v;
-                v.new_vertex = false;
-                v.Obj = (c_node -> root_node_list)[i]
-                split_node.i_sop.push_back[v];
-            }
+            Sop_prime split_node;
+            c_node = LSV_Collapse(collapse_list[0], max_fanin);
             check_list.push_back(split_node);
             
             // start threshold synthesis
             while(check_list.size() > 0)
             {
-                if (LSV_UnateCheck(check_list[0]))
+                //--------------Sop_prime -> Sop-------------------//
+                Sop pSop;
+                pSop.o_sop = check_list[0].o_sop;
+                pSop.i_sop = check_list[0].i_sop;
+                pSop.func  = check_list[0].func;
+                //-------------------------------------------------//
+                if (LSV_UnateCheck(pSop.func))
                 {
                     vector<int> T_weight;
-                    T_weight = LSV_ILPCheck(check_list[0].func);
+                    T_weight = LSV_ILPCheck(pSop.func);
                     if (T_weight.size() > 0)
                     {
                         Gate new_gate;
-                        new_gate.name = check_list[0].o_sop;
+                        new_gate.name = pSop.o_sop;
                         for (int i = 0; i < (T_weight.size() - 1); ++i)
                         {
                             new_gate.weight.push_back(T_weight[i]);
-                            new_gate.fanin.push_back(check_list[0].i_sop[i]);
-                            collapse_list.push_back(check_list[0].i_sop[i].Obj);
+                            new_gate.fanin.push_back(pSop.i_sop[i]);
+                            collapse_list.push_back(pSop.i_sop[i].Obj);
                         }
                         new_gate.T = T_weight[T_weight.size() - 1];
                         gate_list.push_back(new_gate);
@@ -117,15 +105,20 @@ void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin)
                     else
                     {
                         bool factored;
-                        vector<Sop> Sops = {};
-                        factored = LSV_UnateSplit(check_list[0], Sops);
+                        vector<Sop_prime> Sops;
+                        factored = LSV_UnateSplit(pSop, Sops);
                         vector<int> w1, w2; // weight vector of split nodes
-                        w1 = LSV_ILPCheck(Sops[0].func);
-                        w2 = LSV_ILPCheck(Sops[1].func);
+                        //-------------- array -> char* -------------------//
+                        char * func1, func2;
+                        func1  = Sops[0].func;
+                        func2  = Sops[1].func;
+                        //-------------------------------------------------//
+                        w1 = LSV_ILPCheck(func1);
+                        w2 = LSV_ILPCheck(func2);
                         if (factored)
                         {
                             Gate new_gate;
-                            new_gate.name = check_list[0].o_sop;
+                            new_gate.name = Sops[0].o_sop;
                             new_gate.T = Sops[0].i_sop.size() + 1;
                             for (int i = 0; i < Sops[0].i_sop.size(); ++i)
                             {
@@ -148,7 +141,7 @@ void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin)
                         else if (w1.size() > 0)
                         {
                             Gate new_gate;
-                            new_gate.name = check_list[0].o_sop;
+                            new_gate.name = pSop.o_sop;
                             for (int i = 0; i < (w1.size() - 1); ++i)
                             {
                                 new_gate.weight.push_back(w1[i]);
@@ -170,7 +163,7 @@ void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin)
                         else if (w2.size() > 0)
                         {
                             Gate new_gate;
-                            new_gate.name = check_list[0].o_sop;
+                            new_gate.name = pSop.o_sop;
                             for (int i = 0; i < (w2.size() - 1); ++i)
                             {
                                 new_gate.weight.push_back(w2[i]);
@@ -192,13 +185,13 @@ void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin)
                         // not threshold at all
                         else
                         {
-                            int cube_num = Abc_SopGetCubeNum( check_list[0].func );
-                            int var_num = Abc_SopGetVarNum( check_list[0].func );
+                            int cube_num = Abc_SopGetCubeNum( pSop.func );
+                            int var_num = Abc_SopGetVarNum( pSop.func );
                             if (cube_num > max_fanin)
                             {
                                 Gate new_gate;
                                 new_gate.T = 1;
-                                new_gate.name = check_list[0].o_sop;
+                                new_gate.name = pSop.o_sop;
                                 int sp_size = cube_num/max_fanin;
                                 int remain = cube_num%max_fanin;
                                 int cur_cube;
@@ -327,13 +320,11 @@ void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin)
                 // binate splitting
                 else
                 {
-                    vector<Sop> Sops = {};
-                    LSV_BinateSplit(check_list[0], Sops, max_fanin);
-                    // new vertex generation
-                    // new gate generation
+                    vector<Sop_prime> Sops;
+                    LSV_BinateSplit(pSop, Sops, max_fanin, 0);
                     int     sop_num = Sops.size();
                     Gate    new_gate;
-                    new_gate.name   = check_list[0].o_sop;
+                    new_gate.name   = pSop.o_sop;
                     new_gate.T      = 1;
                     for (int i = 0; i < sop_num; ++i)
                     {
@@ -395,8 +386,8 @@ void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin)
 Sop_prime LSV_Collapse(Abc_Obj_t* pObj, int max_fanin);
 bool LSV_UnateCheck(Sop pSop);
 vector<int> LSV_ILPCheck(char * pSop);
-bool LSV_UnateSplit(Sop pSop, vector<Sop_prime>& new_node);
-void LSV_BinateSplit(Sop pSop, vector<Sop_prime>& new_node, int maxfanin, int& cur_fanin);
+bool LSV_UnateSplit(Sop pSop, vector<Sop>& new_node);
+void LSV_BinateSplit(Sop pSop, vector<Sop>& new_node, int maxfanin, int& cur_fanin);
 
 
 
