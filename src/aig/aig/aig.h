@@ -68,8 +68,8 @@ typedef enum {
 // the AIG node
 struct Aig_Obj_t_  // 8 words
 {
-    // Hugo added 
-    vector<char*>    pSop;
+    // Hugo added : vector<char*>
+    Vec_Ptr_t *      pSop;
     // end
     union {                         
         Aig_Obj_t *  pNext;          // strashing table

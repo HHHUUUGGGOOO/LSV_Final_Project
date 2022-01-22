@@ -36,7 +36,13 @@ struct vertex {
 struct Sop {
     vertex          o_sop;      // the output of the sop
     vector<vertex>  i_sop;      // fanin of the sop
-    char*           func;   // the sop function
+    char*           func;       // the sop function
+};
+
+struct Sop_prime {
+    vertex          o_sop;      // the output of the sop
+    vector<vertex>  i_sop;      // fanin of the sop
+    char            func[100];  // the sop function
 };
 
 struct Gate {
@@ -386,11 +392,11 @@ void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin)
     }
 }
 
-Abc_Obj_t* LSV_Collapse(Abc_Obj_t* pObj, int max_fanin);
+Sop_prime LSV_Collapse(Abc_Obj_t* pObj, int max_fanin);
 bool LSV_UnateCheck(Sop pSop);
 vector<int> LSV_ILPCheck(char * pSop);
-bool LSV_UnateSplit(Sop pSop, vector<Sop>& new_node);
-void LSV_BinateSplit(Sop pSop, vector<Sop>& new_node, int maxfanin);
+bool LSV_UnateSplit(Sop pSop, vector<Sop_prime>& new_node);
+void LSV_BinateSplit(Sop pSop, vector<Sop_prime>& new_node, int maxfanin, int& cur_fanin);
 
 
 

@@ -85,8 +85,8 @@ Vvi refine_cube_idx(Vvi& cube_idx)
       // 檢查是否包含
       else 
       {
-        vector set_diff;
-        vector::iterator it;
+        Vi set_diff;
+        Vi::iterator it;
         it = set_difference(cube_idx[i].begin(), cube_idx[i].end(), cube_idx[j].begin(), cube_idx[j].end(), set_diff.begin());
         if (cube_idx[i].size() == cube_idx[j].size() + int(it - set_diff.begin()))
         {
@@ -102,40 +102,47 @@ Vvi refine_cube_idx(Vvi& cube_idx)
   return ans;
 }
 
-vector<char*> one_cube_complement(vector<char*>& sop_list, int sop_length)
+Vec_Ptr_t* one_cube_complement(Vec_Ptr_t* sop_list, int sop_length)
 {
-  string sop_0(sop_list[0]);
+  const char* sop_0 = (char *)Vec_PtrEntry(sop_list, 0);
   vector<char*> temp_sop;
   for (int i = 0 ; i < sop_length ; ++i)
   {
-    if (sop_0[i] == "1")
+    if (sop_0[i] == '1')
     {
       string temp_str(sop_length, '-');
       temp_str.replace(i, 1, "0");
-      temp_sop.push_back(temp_str.c_str());
+      char* temp = &temp_str[0];
+      temp_sop.push_back(temp);
     }
-    else if (sop_0[i] == "0")
+    else if (sop_0[i] == '0')
     {
       string temp_str(sop_length, '-');
       temp_str.replace(i, 1, "1");
-      temp_sop.push_back(temp_str.c_str());
+      char* temp = &temp_str[0];
+      temp_sop.push_back(temp);
     }
   }
-  return temp_sop;
+  Vec_Ptr_t* final_list;
+  for (int i = 0 ; i < temp_sop.size() ; ++i)
+  {
+    Vec_PtrPush(final_list, temp_sop[i]);
+  }
+  return final_list;
 }
 
-vector<char*> multi_cube_complement(vector<char*>& sop_list, int sop_length)
+Vec_Ptr_t* multi_cube_complement(Vec_Ptr_t* sop_list, int sop_length)
 {
   // int = 0 --> offset ; int = 1 --> onset ; int = 2 --> don't care
   vector<int> onset_or_offset(sop_length, 2);
   vector<vector<int>> cube_idx;
-  for (int i = 0 ; i < sop_list.size() ; ++i)
+  for (int i = 0 ; i < sop_list->nSize ; ++i)
   {
     vector<int> temp_idx;
     for (int j = 0 ; j < sop_length ; ++j)
     {
-      if (sop_list[i][j] == "0") { onset_or_offset[j] = 0; temp_idx.push_back(j); }
-      else if (sop_list[i][j] == "1") { onset_or_offset[j] = 1; temp_idx.push_back(j); }
+      if (((char *)Vec_PtrEntry(sop_list, i))[j] == '0') { onset_or_offset[j] = 0; temp_idx.push_back(j); }
+      else if (((char *)Vec_PtrEntry(sop_list, i))[j] == '1') { onset_or_offset[j] = 1; temp_idx.push_back(j); }
     }
     cube_idx.push_back(temp_idx);
   }
@@ -157,39 +164,45 @@ vector<char*> multi_cube_complement(vector<char*>& sop_list, int sop_length)
       if (onset_or_offset[refined_sop[i][j]] == 0) { temp_ans.replace(refined_sop[i][j], 1, "1"); }
       else if (onset_or_offset[refined_sop[i][j]] == 1) { temp_ans.replace(refined_sop[i][j], 1, "0"); }
     }
-    temp_sop.push_back(temp_ans);
+    char* temp = &temp_ans[0];
+    temp_sop.push_back(temp);
   }
-  return temp_sop;
+  Vec_Ptr_t* final_list;
+  for (int i = 0 ; i < temp_sop.size() ; ++i)
+  {
+    Vec_PtrPush(final_list, temp_sop[i]);
+  }
+  return final_list;
 }
 
-void combine_fanin_sop(vector<char*>& combined_sop, vector<char*>& fanin0_sop, vector<char*>& fanin1_sop, int sop_length)
+void combine_fanin_sop(Vec_Ptr_t* combined_sop, Vec_Ptr_t* fanin0_sop, Vec_Ptr_t* fanin1_sop, int sop_length)
 {
   // int = 0 --> offset ; int = 1 --> onset ; int = 2 --> don't care
   vector<int> onset_or_offset(sop_length, 2);
   vector<vector<int>> cube_idx_0, cube_idx_1;
-  for (int i = 0 ; i < fanin0_sop.size() ; ++i)
+  for (int i = 0 ; i < fanin0_sop->nSize ; ++i)
   {
     vector<int> temp_idx;
     for (int j = 0 ; j < sop_length ; ++j)
     {
-      if (fanin0_sop[i][j] == "0") { onset_or_offset[j] = 0; temp_idx.push_back(j); }
-      else if (fanin0_sop[i][j] == "1") { onset_or_offset[j] = 1; temp_idx.push_back(j); }
+      if (((char *)Vec_PtrEntry(fanin0_sop, i))[j] == '0') { onset_or_offset[j] = 0; temp_idx.push_back(j); }
+      else if (((char *)Vec_PtrEntry(fanin0_sop, i))[j] == '1') { onset_or_offset[j] = 1; temp_idx.push_back(j); }
     }
     cube_idx_0.push_back(temp_idx);
   }
-  for (int i = 0 ; i < fanin1_sop.size() ; ++i)
+  for (int i = 0 ; i < fanin1_sop->nSize ; ++i)
   {
     vector<int> temp_idx;
     for (int j = 0 ; j < sop_length ; ++j)
     {
-      if (fanin1_sop[i][j] == "0") { onset_or_offset[j] = 0; temp_idx.push_back(j); }
-      else if (fanin1_sop[i][j] == "1") { onset_or_offset[j] = 1; temp_idx.push_back(j); }
+      if (((char *)Vec_PtrEntry(fanin1_sop, i))[j] == '0') { onset_or_offset[j] = 0; temp_idx.push_back(j); }
+      else if (((char *)Vec_PtrEntry(fanin1_sop, i))[j] == '1') { onset_or_offset[j] = 1; temp_idx.push_back(j); }
     }
     cube_idx_1.push_back(temp_idx);
   }
   // 同 program.cc 作法, 先不管每個 lit 的 phase, 做 cart_product
   vector<vector<int>> temp_ans;
-  for (int i = 0 ; i < fanin0_sop.size() ; ++i)
+  for (int i = 0 ; i < fanin0_sop->nSize ; ++i)
   {
     vector<vector<int>> cube_idx_0_temp = {cube_idx_0[i]};
     vector<vector<int>> cube_idx;
@@ -217,16 +230,22 @@ void combine_fanin_sop(vector<char*>& combined_sop, vector<char*>& fanin0_sop, v
       if (onset_or_offset[refined_sop[i][j]] == 0) { temp_ans.replace(refined_sop[i][j], 1, "0"); }
       else if (onset_or_offset[refined_sop[i][j]] == 1) { temp_ans.replace(refined_sop[i][j], 1, "1"); }
     }
-    temp_sop.push_back(temp_ans);
+    char* temp = &temp_ans[0];
+    temp_sop.push_back(temp);
   }
-  combined_sop = temp_sop;
+  Vec_Ptr_t* final_list;
+  for (int i = 0 ; i < temp_sop.size() ; ++i)
+  {
+    Vec_PtrPush(final_list, temp_sop[i]);
+  }
+  combined_sop = final_list;
 
 }
 
 
 void BuildSop(Aig_Man_t* pAig, Aig_Obj_t* swapped_node, vector<Aig_Obj_t*>& PI_node, int& sop_length)
 {
-  if (Aig_ObjIsTravIdCurrent(swapped_node)) { return; }
+  if (Aig_ObjIsTravIdCurrent(pAig, swapped_node)) { return; }
   // fMarkA = 0 --> 還不能合成為 Sop  ;  fMarkA = 1 or PI --> 可以合成做 Sop
   // 如果是 PI --> 可以合成 sop (注意 sop variable 順序)
   if (swapped_node->pFanin0 == NULL) 
@@ -235,7 +254,8 @@ void BuildSop(Aig_Man_t* pAig, Aig_Obj_t* swapped_node, vector<Aig_Obj_t*>& PI_n
     string temp_sop(sop_length, '-');
     if (Aig_IsComplement(swapped_node)) { temp_sop.replace(PI_node.size(), 1, "0"); }
     else { temp_sop.replace(PI_node.size(), 1, "1"); }
-    swapped_node->pSop.push_back(temp_sop.c_str());
+    char* temp = &temp_sop[0];
+    Vec_PtrPush(swapped_node->pSop, temp);
     // mark traversed
     Aig_ObjSetTravIdCurrent(pAig, swapped_node);
     // mark sop-ed
@@ -250,20 +270,20 @@ void BuildSop(Aig_Man_t* pAig, Aig_Obj_t* swapped_node, vector<Aig_Obj_t*>& PI_n
   {
     // output phase 如果沒有 complement, 直接 return 往上走
     // 先將 fanin 有 complement 的情況處理 --> 才能將兩個 fanin 合併
-    vector<char*> fanin0_sop = swapped_node->pFanin0->pSop;
-    vector<char*> fanin1_sop = swapped_node->pFanin1->pSop;
+    Vec_Ptr_t* fanin0_sop = swapped_node->pFanin0->pSop;
+    Vec_Ptr_t* fanin1_sop = swapped_node->pFanin1->pSop;
     if (Aig_IsComplement(swapped_node->pFanin0))
     {
-      if (swapped_node->pFanin0->pSop.size() == 1) { fanin0_sop = one_cube_complement(swapped_node->pFanin0->pSop, sop_length); }
-      else if (swapped_node->pFanin0->pSop.size() > 1) { fanin0_sop = multi_cube_complement(swapped_node->pFanin0->pSop, sop_length); }
+      if (swapped_node->pFanin0->pSop->nSize == 1) { fanin0_sop = one_cube_complement(swapped_node->pFanin0->pSop, sop_length); }
+      else if (swapped_node->pFanin0->pSop->nSize > 1) { fanin0_sop = multi_cube_complement(swapped_node->pFanin0->pSop, sop_length); }
     }
     if (Aig_IsComplement(swapped_node->pFanin1))
     {
-      if (swapped_node->pFanin1->pSop.size() == 1) { fanin1_sop = one_cube_complement(swapped_node->pFanin1->pSop, sop_length); }
-      else if (swapped_node->pFanin1->pSop.size() > 1) { fanin1_sop = multi_cube_complement(swapped_node->pFanin1->pSop, sop_length); }
+      if (swapped_node->pFanin1->pSop->nSize == 1) { fanin1_sop = one_cube_complement(swapped_node->pFanin1->pSop, sop_length); }
+      else if (swapped_node->pFanin1->pSop->nSize > 1) { fanin1_sop = multi_cube_complement(swapped_node->pFanin1->pSop, sop_length); }
     }
     // 現在要將 fanin0_sop, fanin1_sop AND 起來 (不用管輸出 phase 因為會在下次他變成 fanin 時操作 inv, 但最後 PO 要管嗎 ?)
-    vector<char*> combined_sop;
+    Vec_Ptr_t* combined_sop;
     combine_fanin_sop(combined_sop, fanin0_sop, fanin1_sop, sop_length);
 
     // 把上面合併完的結果存到 swapped_node->pSop
@@ -292,7 +312,7 @@ void BuildSop(Aig_Man_t* pAig, Aig_Obj_t* swapped_node, vector<Aig_Obj_t*>& PI_n
 
 
 
-Abc_Obj_t* LSV_Collapse(Abc_Obj_t* pObj, int max_fanin)
+Sop_prime Lsv_NtkOrBidec(Abc_Obj_t* pObj, int max_fanin)
 {
   // threshold fanin # > 0
   assert (max_fanin > 0);
@@ -300,10 +320,17 @@ Abc_Obj_t* LSV_Collapse(Abc_Obj_t* pObj, int max_fanin)
     // duplicate the "object" not pointer
   Abc_Obj_t n_prime_obj = *pObj;
   Abc_Obj_t* n_prime = &n_prime_obj;
+  // new vertex
+  vertex Vx;
+  Vx.new_vertex = false;
+  Vx.Id = n_prime->Id;
+  Vx.Obj = pObj;
+  // new Sop_prime
+  Sop_prime sop_final;
+  sop_final.o_sop = Vx;
+
   int L = Abc_ObjFaninNum(pObj);
-  // add the root node into root_node_list
-  n_prime->root_node_list.push_back(pObj);
-  if (pObj->fMarkA == 2) { return n_prime }
+  if (pObj->fMarkA == 2) { return sop_final; }
   // mark 不重複 collapse
   pObj->fMarkA = 2;
   // if not exceeds threshold fanin #
@@ -316,11 +343,12 @@ Abc_Obj_t* LSV_Collapse(Abc_Obj_t* pObj, int max_fanin)
       if ((Abc_ObjType(cur_node) == ABC_OBJ_PI) || \
           (Abc_ObjFanin0(cur_node)->vFanouts.nSize > 1))
       {
-        // add the node into root_node_list
-        n_prime->root_node_list.push_back(cur_node);
-        // add the hierarchical version
-        vector<Abc_Obj_t*> temp_node = {cur_node};
-        n_prime->root_node_list_hierar.push_back(temp_node);
+        // add the node into Sop_prime
+        vertex temp_vx;
+        temp_vx.new_vertex = false;
+        temp_vx.Id = cur_node->Id;
+        temp_vx.Obj = cur_node;
+        sop_final.i_sop.push_back(temp_vx);
         break;
       }
       // if not PI and not multi-fanout
@@ -335,23 +363,29 @@ Abc_Obj_t* LSV_Collapse(Abc_Obj_t* pObj, int max_fanin)
         // if exceeds threshold fanin # --> 存當前的 node
         if (L - 1 + new_node_num > max_fanin) 
         {  
-          n_prime->root_node_list.push_back(cur_node);
-          vector<Abc_Obj_t*> tmp = {cur_node};
-          n_prime->root_node_list_hierar.push_back(tmp);
+          // add the node into Sop_prime
+          vertex temp_vx;
+          temp_vx.new_vertex = false;
+          temp_vx.Id = cur_node->Id;
+          temp_vx.Obj = cur_node;
+          sop_final.i_sop.push_back(temp_vx);
           break; 
         }
         else // substitution
         {
           // update L --> sub original node, plus new node #
           L = L - 1 + new_node_num; 
-          // substitution --> add the node into root_node_list
+          // substitution --> add the node into Sop_prime
             // no matter if all new node are PI or multi-fanout --> 加進 node_list, 要判斷是否 PI 等留給主函數
           for (int j = 0 ; j < temp_node.size() ; ++j)
           {
-            n_prime->root_node_list.push_back(temp_node[j]);
+            // add the node into Sop_prime
+            vertex temp_vx;
+            temp_vx.new_vertex = false;
+            temp_vx.Id = temp_node[j]->Id;
+            temp_vx.Obj = temp_node[j];
+            sop_final.i_sop.push_back(temp_vx);
           }
-          // add the hierarchical version
-          n_prime->root_node_list_hierar.push_back(temp_node);
           break;
         }
       }
@@ -359,24 +393,24 @@ Abc_Obj_t* LSV_Collapse(Abc_Obj_t* pObj, int max_fanin)
   }
 
   // Operation 1 : 從 root_node_list 建立一個新的 Ntk, 以這些 node 為 PI 建立出 Aig (Abc_NtkToDar)
-  int sop_length = n_prime->root_node_list.size();
+  int sop_length = sop_final.i_sop.size() + 1;
   Abc_Ntk_t* trans_pNtk = n_prime->pNtk;
   // PI's vFanins --> NULL ; 他小孩的 fanout 也要切斷
-  for (int i = 1 ; i < n_prime->root_node_list.size() ; ++i)
-  { 
-    for (int j = 0 ; j < n_prime->root_node_list[i]->vFanins.nSize ; ++j)
-    {
-      Vec_IntClear(n_prime->root_node_list[i]->vFanins[j]->vFanouts);
-    }
-    Vec_IntClear(n_prime->root_node_list[i]->vFanins);
-  }
+  // for (int i = 1 ; i < n_prime->root_node_list.size() ; ++i)
+  // { 
+  //   for (int j = 0 ; j < n_prime->root_node_list[i]->vFanins.nSize ; ++j)
+  //   {
+  //     Vec_IntClear(&n_prime->root_node_list[i]->vFanins.pArray[j]->vFanouts);
+  //   }
+  //   Vec_IntClear(&n_prime->root_node_list[i]->vFanins);
+  // }
   // 改 Abc_Ntk_t 的 vPis, vCis
   Vec_PtrClear(trans_pNtk->vPis);
   Vec_PtrClear(trans_pNtk->vCis);
-  for (int i = 1 ; i < n_prime->root_node_list ; ++i)
+  for (int i = 1 ; i < sop_length ; ++i)
   {
-    Vec_PtrPush(trans_pNtk->vPis, n_prime->root_node_list[i]);
-    Vec_PtrPush(trans_pNtk->vCis, n_prime->root_node_list[i]);
+    Vec_PtrPush(trans_pNtk->vPis, sop_final.i_sop[i].Obj);
+    Vec_PtrPush(trans_pNtk->vCis, sop_final.i_sop[i].Obj);
   }
   
   // Operation 2 : PI 為 Sop variable (不包含 root node), 依序往上爆出 output 的 Sop
@@ -385,17 +419,17 @@ Abc_Obj_t* LSV_Collapse(Abc_Obj_t* pObj, int max_fanin)
   Aig_Man_t* pAig = Abc_NtkToDar(trans_pNtk, 0, 1);
     // swap child --> let leftest child be the deepest 
     // ??? assume only a PO ???
-  Aig_Obj_t* swapped_node = pAig->Aig_ManCo(pAig, 0);
+  Aig_Obj_t* swapped_node = Aig_ManCo(pAig, 0);
     // 從最底下開始往上合成 Sop
       // swapped_node --> Aig tree 的 root
       // cur_node --> 最左邊底下的 child (begin to build SOP)
-  vector<char*> node_to_sop;
+  Vec_Ptr_t* node_to_sop;
     // 這時呼叫函數輸出 vector<char*> node_to_sop (解答)
     // 全部 fmarkA 先 reset --> fmarkA 標記是否可以合成 sop
-  Aig_Obj_t* pObj;
+  Aig_Obj_t* pObj_2;
   vector<Aig_Obj_t*> PI_node; // 並藉由目前長度去算應該要將值 assign 到 sop 的第幾個變數
   int node = 0;
-  Aig_ManForEachNode(pAig, pObj, node) { Aig_ObjClearMarkA(pObj); }
+  Aig_ManForEachNode(pAig, pObj_2, node) { Aig_ObjClearMarkA(pObj_2); }
   Aig_ManIncrementTravId(pAig);
     // 不考慮 xor 這種雙層電路, 所以 level 最高為 2 ?
   BuildSop(pAig, swapped_node, PI_node, sop_length);
@@ -403,23 +437,71 @@ Abc_Obj_t* LSV_Collapse(Abc_Obj_t* pObj, int max_fanin)
   // 如果 output phase 為 neg, 記得先做 complement
   if (Aig_IsComplement(swapped_node))
   {
-    if (swapped_node->pSop.size() == 1) { node_to_sop = one_cube_complement(swapped_node->pSop, sop_length); }
-    else if (swapped_node->pSop.size() > 1) { node_to_sop = multi_cube_complement(swapped_node->pSop, sop_length); }
+    if (swapped_node->pSop->nSize == 1) { node_to_sop = one_cube_complement(swapped_node->pSop, sop_length); }
+    else if (swapped_node->pSop->nSize > 1) { node_to_sop = multi_cube_complement(swapped_node->pSop, sop_length); }
   }
 
   // Operation 3 : 將 Sop 存到 n_prime root node's "collapsed_sop"
   string ans_sop;
-  for (int i = 0 ; i < node_to_sop.size() ; ++i)
+  for (int i = 0 ; i < node_to_sop->nSize ; ++i)
   {
-    string temp(node_to_sop[i]);
+    string temp((char *)Vec_PtrEntry(node_to_sop, i));
     string temp_str = temp + " 1\n";
     ans_sop.append(temp_str);
   }
-    // string to char* 
-  n_prime->collapsed_sop = ans_sop.c_str();
+    // const char* -> char[]
+  const char* temp_final_sop = ans_sop.c_str();
+  strcpy(sop_final.func, temp_final_sop);
 
   // return collapsed node (pObj->root_node_list)
     // if n_prime -> root_node_list.size() > 0 --> 有 collapse 
-  return n_prime;
+  return sop_final;
+
+}
+
+
+// Define command function : LSV_CommandOrBidec
+int LSV_CommandOrBidec(Abc_Frame_t* pAbc, int argc, char** argv)
+{
+  Abc_Ntk_t* pNtk = Abc_FrameReadNtk(pAbc);
+  int c;
+  Extra_UtilGetoptReset();
+  while ((c = Extra_UtilGetopt(argc, argv, "h")) != EOF)
+  {
+    switch (c)
+    {
+      case 'h':
+        goto usage;
+      default:
+        goto usage;
+    }
+  }
+  if (!pNtk)
+  {
+    Abc_Print(-1, "Empty network.\n");
+    return -1;
+  }
+  // main function
+  // global variable 
+  cout << "=======================" << endl;
+  cout << "argv[1] : " << argv[1] << endl;
+  cout << "=======================" << endl;
+
+  Abc_Obj_t* ntk_PO;
+  int co_node;
+
+  // For each Co, extract cone of each Co & support set (Co: Combinational output)
+  Abc_NtkForEachCo(pNtk, ntk_PO, co_node)
+  {
+    Lsv_NtkOrBidec(ntk_PO, stoi(argv[1]));
+  }
+  // Lsv_NtkOrBidec(pNtk);
+  return 0;
+
+usage:
+  Abc_Print(-2, "usage: lsv_or_bidec [-h]\n");
+  Abc_Print(-2, "\t        check the OR bi-decomposition in the network\n");
+  Abc_Print(-2, "\t-h    : print the command usage\n");
+  return 1;
 
 }

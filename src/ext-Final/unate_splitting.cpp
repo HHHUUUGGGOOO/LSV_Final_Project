@@ -22,7 +22,7 @@ using namespace std;
 //----------------------------------------------------------------------
 //    function definition
 //----------------------------------------------------------------------
-bool LSV_UnateSplit(Sop pSop, vector<Sop>& new_node)    // return true if factor
+bool LSV_UnateSplit(Sop pSop, vector<Sop_prime>& new_node)    // return true if factor
 {
     int var_num = Abc_SopGetVarNum( pSop.func );
     int size = Abc_SopGetCubeNum( pSop.func );
@@ -35,13 +35,13 @@ bool LSV_UnateSplit(Sop pSop, vector<Sop>& new_node)    // return true if factor
     for(int init = 0; init < var_num; ++init)
     {
         vector<int> empty;
-        empty = {};
+        // empty = {};
         ap_cube.push_back(empty);
         appearance.push_back(0);
     }
     
     // calculating appearance
-    Abc_SopForEachCube( pSop, var_num, pCube )
+    Abc_SopForEachCube( pSop.func, var_num, pCube )
     {
         for(int i = 0; i < var_num; ++i)
         {
@@ -75,10 +75,10 @@ bool LSV_UnateSplit(Sop pSop, vector<Sop>& new_node)    // return true if factor
         }
     }
 
-    Sop sop1, sop2; //output
-    char * nSop_1; //output
-    char * nSop_2; //output
-
+    Sop_prime sop1, sop2; //output
+    //char nSop_1[100] = {'-'}; //output
+    //char nSop_2[100] = {'-'}; //output
+    
     vector<int> v1, v2;
     
     // first case
@@ -115,21 +115,21 @@ bool LSV_UnateSplit(Sop pSop, vector<Sop>& new_node)    // return true if factor
             {
                 for (int j = 0; j < v1.size(); ++j)
                 {
-                    nSop_1[l1*i + j] = pSop.func[l*i + v1[j]];
+                    sop1.func[l1*i + j] = pSop.func[l*i + v1[j]];
                 }
-                nSop_1[l1*i + v1.size()]        = pSop.func[l*i + var_num];
-                nSop_1[l1*i + v1.size() + 1]    = pSop.func[l*i + var_num + 1];
-                nSop_1[l1*i + v1.size() + 2]    = pSop.func[l*i + var_num + 2];
+                sop1.func[l1*i + v1.size()]        = pSop.func[l*i + var_num];
+                sop1.func[l1*i + v1.size() + 1]    = pSop.func[l*i + var_num + 1];
+                sop1.func[l1*i + v1.size() + 2]    = pSop.func[l*i + var_num + 2];
             }
             else
             {
                 for (int j = 0; j < v2.size(); ++j)
                 {
-                    nSop_2[l2*i + j] = pSop.func[l*i + v2[j]];
+                    sop2.func[l2*i + j] = pSop.func[l*i + v2[j]];
                 }
-                nSop_2[l2*i + v2.size()]        = pSop.func[l*i + var_num];
-                nSop_2[l2*i + v2.size() + 1]    = pSop.func[l*i + var_num + 1];
-                nSop_2[l2*i + v2.size() + 2]    = pSop.func[l*i + var_num + 2];
+                sop2.func[l2*i + v2.size()]        = pSop.func[l*i + var_num];
+                sop2.func[l2*i + v2.size() + 1]    = pSop.func[l*i + var_num + 1];
+                sop2.func[l2*i + v2.size() + 2]    = pSop.func[l*i + var_num + 2];
             }
         }
     }
@@ -152,21 +152,21 @@ bool LSV_UnateSplit(Sop pSop, vector<Sop>& new_node)    // return true if factor
         // Sop construction
         for (int i = 0; i < v1.size(); ++i)
         {
-            nSop_1[i] = pSop.func[v1[i]];
+            sop1.func[i] = pSop.func[v1[i]];
         }
-        nSop_1[v1.size()]       = pSop.func[var_num];
-        nSop_1[v1.size() + 1]   = pSop.func[var_num + 1];
-        nSop_1[v1.size() + 2]   = pSop.func[var_num + 2];
+        sop1.func[v1.size()]       = pSop.func[var_num];
+        sop1.func[v1.size() + 1]   = pSop.func[var_num + 1];
+        sop1.func[v1.size() + 2]   = pSop.func[var_num + 2];
         
         for (int i = 0; i < size; ++i)
         {
             for (int j = 0; j < v2.size(); ++j)
             {
-                nSop_2[l2*i + j] = pSop.func[l*i + v2[j]];
+                sop2.func[l2*i + j] = pSop.func[l*i + v2[j]];
             }
-            nSop_2[l2*i + v2.size()]        = pSop.func[l*i + var_num];
-            nSop_2[l2*i + v2.size() + 1]    = pSop.func[l*i + var_num + 1];
-            nSop_2[l2*i + v2.size() + 2]    = pSop.func[l*i + var_num + 2];
+            sop2.func[l2*i + v2.size()]        = pSop.func[l*i + var_num];
+            sop2.func[l2*i + v2.size() + 1]    = pSop.func[l*i + var_num + 1];
+            sop2.func[l2*i + v2.size() + 2]    = pSop.func[l*i + var_num + 2];
         }
     }
     
@@ -217,32 +217,44 @@ bool LSV_UnateSplit(Sop pSop, vector<Sop>& new_node)    // return true if factor
         {
             for (int j = 0; j < v1.size(); ++j)
             {
-                nSop_1[l1*i + j] = pSop.func[l*c1[i] + v1[j]];
+                sop1.func[l1*i + j] = pSop.func[l*c1[i] + v1[j]];
             }
-            nSop_1[l1*i + v1.size()]        = pSop.func[l*c1[i] + var_num];
-            nSop_1[l1*i + v1.size() + 1]    = pSop.func[l*c1[i] + var_num + 1];
-            nSop_1[l1*i + v1.size() + 2]    = pSop.func[l*c1[i] + var_num + 2];
+            sop1.func[l1*i + v1.size()]        = pSop.func[l*c1[i] + var_num];
+            sop1.func[l1*i + v1.size() + 1]    = pSop.func[l*c1[i] + var_num + 1];
+            sop1.func[l1*i + v1.size() + 2]    = pSop.func[l*c1[i] + var_num + 2];
         }
         for (int i = 0; i < c2.size(); ++i)
         {
             for (int j = 0; j < v2.size(); ++j)
             {
-                nSop_2[l2*i + j] = pSop.func[l*c2[i] + v2[j]];
+                sop2.func[l2*i + j] = pSop.func[l*c2[i] + v2[j]];
             }
-            nSop_2[l2*i + v2.size()]        = pSop.func[l*c2[i] + var_num];
-            nSop_2[l2*i + v2.size() + 1]    = pSop.func[l*c2[i] + var_num + 1];
-            nSop_2[l2*i + v2.size() + 2]    = pSop.func[l*c2[i] + var_num + 2];
+            sop2.func[l2*i + v2.size()]        = pSop.func[l*c2[i] + var_num];
+            sop2.func[l2*i + v2.size() + 1]    = pSop.func[l*c2[i] + var_num + 1];
+            sop2.func[l2*i + v2.size() + 2]    = pSop.func[l*c2[i] + var_num + 2];
         }
     }
     
     
     // output
-    Sop sop_1, sop_2;
-    sop_1.func = nSop_1;
-    sop_2.func = nSop_2;
-    for(int i = 0; i < v1.size(); ++i){sop_1.i_sop.push_back(pSop.i_sop[v1[i]]);}
-    for(int i = 0; i < v2.size(); ++i){sop_2.i_sop.push_back(pSop.i_sop[v2[i]]);}
-    new_node.push_back(sop_1);
-    new_node.push_back(sop_2);
+    //Sop sop_1, sop_2;
+    //sop_1.func = nSop_1;
+    //sop_2.func = nSop_2;
+    //sop1.o_sop = pSop.o_sop;
+    //sop2.o_sop = pSop.o_sop;
+    for(int i = 0; i < v1.size(); ++i){sop1.i_sop.push_back(pSop.i_sop[v1[i]]);}
+    for(int i = 0; i < v2.size(); ++i){sop2.i_sop.push_back(pSop.i_sop[v2[i]]);}
+    new_node.push_back(sop1);
+    new_node.push_back(sop2);
+    /*
+    for (int i = 0; i < 5; ++i)
+    {
+        printf("%d %c \n", i, new_node[0].func[i]);
+    }
+    for (int i = 0; i < 14; ++i)
+    {
+        printf("%d %c \n", i, new_node[1].func[i]);
+    }
+     */
     return factor;
 }
