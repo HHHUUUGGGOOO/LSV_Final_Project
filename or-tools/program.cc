@@ -71,7 +71,7 @@ namespace operations_research
     }
   }
   
-  void CreateOffsetConstraint(char* pSop, int var_num, int cube_num, MPVariable* const T, vector<MPVariable*>& V, const double infinity, vector<MPConstraint*>& ct_off)
+  void CreateOffsetConstraint(char* pSop, int var_num, int cube_num, MPVariable* const T, vector<MPVariable*>& V, const double infinity, vector<MPConstraint*>& ct_off, std::unique_ptr<MPSolver>& solver)
   {
     // (1) 算共幾種組合 (ac. bd. ad --> 2*2*2 = 8 種)
     // (2) 並建造 onset cube 
@@ -205,7 +205,7 @@ namespace operations_research
     // Create a lineat constraint : offset of each cube
       // 暴力法 : 直接爆出所有的"組合" (用 recursive, https://reurl.cc/2Dom5v)
     vector<MPConstraint*> ct_off;
-    // CreateOffsetConstraint(pSop, var_num, cube_num, T, V, infinity, ct_off);
+    CreateOffsetConstraint(pSop, var_num, cube_num, T, V, infinity, ct_off, solver);
 
     LOG(INFO) << "Number of constraints = " << solver->NumConstraints();
     
