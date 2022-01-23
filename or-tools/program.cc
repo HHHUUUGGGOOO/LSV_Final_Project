@@ -268,5 +268,5 @@ namespace operations_research
 int main() 
 {
   // char * pSop, int var_num, int cube_num
-  operations_research::LSV_ILPCheck("11- 1\n-11 1\n", (int)3, (int)2);
+  operations_research::LSV_ILPCheck("11- 1\n-11 1\n", stoi("3"), stoi("2"));
 }
