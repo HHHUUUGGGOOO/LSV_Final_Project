@@ -20,7 +20,7 @@
 
 using namespace std;
 
-// extern vector<int> LSV_ILPCheck(char * pSop, int var_num, int cube_num);
+extern operations_research;
 
 //----------------------------------------------------------------------
 //    Type define

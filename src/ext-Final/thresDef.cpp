@@ -20,7 +20,8 @@
 
 using namespace std;
 
-extern vector<int> LSV_ILPCheck(char * pSop, int var_num, int cube_num);
+// extern vector<int> LSV_ILPCheck(char * pSop, int var_num, int cube_num);
+extern operations_research;
 
 /*=== src/base/abci/abcDar.c ==========================================*/
 extern "C"
@@ -1051,7 +1052,7 @@ void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin)
                     vector<int> T_weight;
                     int var_num = Abc_SopGetVarNum(pSop.func);
                     int cube_num = Abc_SopGetCubeNum(pSop.func);
-                    T_weight = LSV_ILPCheck(pSop.func, var_num, cube_num);
+                    T_weight = operations_research::LSV_ILPCheck(pSop.func, var_num, cube_num);
                     if (T_weight.size() > 0)
                     {
                         Gate new_gate;
@@ -1079,10 +1080,10 @@ void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin)
                         //-------------------------------------------------//
                         int var_num_1 = Abc_SopGetVarNum(func1);
                         int cube_num_1 = Abc_SopGetCubeNum(func1);
-                        w1 = LSV_ILPCheck(func1, var_num_1, cube_num_1);
+                        w1 = operations_research::LSV_ILPCheck(func1, var_num_1, cube_num_1);
                         int var_num_2 = Abc_SopGetVarNum(func2);
                         int cube_num_2 = Abc_SopGetCubeNum(func2);
-                        w2 = LSV_ILPCheck(func2, var_num_2, cube_num_2);
+                        w2 = operations_research::LSV_ILPCheck(func2, var_num_2, cube_num_2);
                         if (factored)
                         {
                             Gate new_gate;
