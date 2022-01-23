@@ -15,11 +15,6 @@
 #include <unordered_set>
 // self-file
 #include "ortools/linear_solver/linear_solver.h"
-// abc
-#include "../src/base/abc/abc.h"
-#include "../src/base/main/main.h"
-#include "../src/base/main/mainInt.h"
-#include "../src/misc/util/abc_global.h"
 
 using namespace std;
 
@@ -72,7 +67,7 @@ void CreateOffsetConstraint(char* pSop, int var_num, int cube_num, MPVariable* c
   char* pCube; // iterator
   int comb_num = 1;
   Vvi onset_list;
-  Abc_SopForEachCube(pSop, var_num, pCube)
+  for (int c = 0 ; c < cube_num ; ++c)
   {
     int temp = 0;
     vector<int> temp_var;
@@ -143,17 +138,15 @@ void CreateOffsetConstraint(char* pSop, int var_num, int cube_num, MPVariable* c
   }
 }
 
-vector<int> LSV_ILPCheck(char * pSop)
+vector<int> LSV_ILPCheck(char * pSop, int var_num, int cube_num)
 {
   // initialize (assume all variables are unate)
   vector<int> ans;
-  int var_num = Abc_SopGetVarNum(pSop);
-  int cube_num = Abc_SopGetCubeNum(pSop);
   char* pCube; // iterator
   bool IsNegUnate[var_num] = {false}; // 不確定可不可以用變數來宣告大小
 
-  Abc_SopForEachCube(pSop, var_num, pCube) 
-  { 
+  for (int c = 0 ; c < cube_num ; ++c)
+  {
     // Later, we need to set a temp var " y " to subsitute the negation variable " x' "
     for (int i = 0 ; i < var_num ; ++i)
     {
@@ -185,8 +178,8 @@ vector<int> LSV_ILPCheck(char * pSop)
   // Create a lineat constraint : onset of each cube
   vector<MPConstraint*> ct_on[cube_num];
   int idx = 0;
-  Abc_SopForEachCube(pSop, var_num, pCube) 
-  { 
+  for (int c = 0 ; c < cube_num ; ++c)
+  {
     string ct_on_name = "ct_on_" + to_string(idx);
     ct_on[idx] = solver->MakeRowConstraint(T, infinity, ct_on_name);
     for (int i = 0 ; i < var_num ; ++i) 
