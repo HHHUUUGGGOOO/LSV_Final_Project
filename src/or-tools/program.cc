@@ -14,11 +14,15 @@
 #include <unordered_map>
 #include <unordered_set>
 // self-file
-#include "../ext-Final/thresDef.h"
 #include "ortools/linear_solver/linear_solver.h"
 // abc
+#include "../base/abc/abc.h"
+#include "../base/main/main.h"
+#include "../base/main/mainInt.h"
+#include "../misc/util/abc_global.h"
 
 using namespace std;
+
 
 //----------------------------------------------------------------------
 //    Type define
