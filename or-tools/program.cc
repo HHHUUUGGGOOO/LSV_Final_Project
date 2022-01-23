@@ -91,7 +91,7 @@ void CreateOffsetConstraint(char* pSop, int var_num, int cube_num, MPVariable* c
     if (temp != 0) { comb_num *= temp; }
     onset_list.push_back(temp_var);
   }
-  pCube = "";
+  strcpy(pCube, "");
   // 列出所有組合 
     // input : [[a, c], [b, d], [a, d]]
     // output : [[a, b, a], [a, b, d], [a, d, a], ..., [c, d, d]]
@@ -164,7 +164,7 @@ vector<int> LSV_ILPCheck(char * pSop, int var_num, int cube_num)
     }
   }
   // reset iterator
-  pCube = "";
+  strcpy(pCube, "");
 
   // Declare solver : Create the linear solver with the GLOP backend
   std::unique_ptr<MPSolver> solver(MPSolver::CreateSolver("SCIP"));
@@ -198,7 +198,7 @@ vector<int> LSV_ILPCheck(char * pSop, int var_num, int cube_num)
     }
     ++idx;
   }
-  pCube = "";
+  strcpy(pCube, "");
 
   // Create a lineat constraint : offset of each cube
     // 暴力法 : 直接爆出所有的"組合" (用 recursive, https://reurl.cc/2Dom5v)
