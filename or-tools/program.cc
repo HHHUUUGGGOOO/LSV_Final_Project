@@ -171,34 +171,36 @@ namespace operations_research
     // Declare solver : Create the linear solver with the GLOP backend
     std::unique_ptr<MPSolver> solver(MPSolver::CreateSolver("SCIP"));
     // std::unique_ptr<MPSolver> solver(MPSolver::CreateSolver("GLOP"));
-    if (!solver) { LOG(WARNING) << "SCIP solver unavailable."; return; }
+    // if (!solver) { LOG(WARNING) << "SCIP solver unavailable."; return; }
     
     // Create the variables : var_num + Threshold
       // weight >= 0 ; Threshold >= 0
       // MakeIntVar --> 限定解只能是 integer
     const double infinity = solver->infinity();
     MPVariable* const T = solver->MakeIntVar(0.0, infinity, "T");
-    vector<MPVariable*> V[100]; // --> 大小開 var_num
+    vector<MPVariable*> V; // --> 大小開 var_num
     for (int i = 0 ; i < var_num ; ++i)
     {
       string name = "w" + to_string(i);
-      V[i] = solver->MakeIntVar(0.0, infinity, name);
+      V.push_back(solver->MakeIntVar(0.0, infinity, name));
     }
 
     LOG(INFO) << "Number of variables = " << solver->NumVariables();
 
     // Create a lineat constraint : onset of each cube
-    vector<MPConstraint*> ct_on[100]; // --> 大小開 cube_num
+    vector<MPConstraint*> ct_on; // --> 大小開 cube_num
     int idx = 0;
     for (int c = 0 ; c < cube_num ; ++c)
     {
-      string ct_on_name = "ct_on_" + to_string(idx);
-      ct_on[idx] = solver->MakeRowConstraint(T, infinity, ct_on_name);
+      string ct_on_name = "ct_on_" + to_string(c);
+      ct_on.push_back(solver->MakeRowConstraint(T, infinity, ct_on_name));
+    }
+    for (int c = 0 ; c < cube_num ; ++c)
+    {
       for (int i = 0 ; i < var_num ; ++i) 
       {
-        if (pCube[i] != '-') { ct_on[idx]->SetCoefficient(V[i], 1); }
+        if (pCube[i] != '-') { ct_on[c]->SetCoefficient(V[i], 1); }
       }
-      ++idx;
     }
     strcpy(pCube, "");
 
