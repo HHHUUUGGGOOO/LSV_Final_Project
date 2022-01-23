@@ -247,3 +247,9 @@ namespace operations_research
   }
 }
 
+int main(int argc, char** argv) 
+{
+  // char * pSop, int var_num, int cube_num
+  operations_research::LSV_ILPCheck(argv[1], stoi(argv[2]), stoi(argv[3]));
+  return EXIT_SUCCESS;
+}
