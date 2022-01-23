@@ -167,8 +167,8 @@ namespace operations_research
       }
       if (one_cube == true) 
       {
-        string t = Character.toString(pSop[i]);
-        temp_char.append(t);
+        // string t = Character.toString(pSop[i]);
+        temp_char.append(1, pSop[i]);
       }
     }
 
