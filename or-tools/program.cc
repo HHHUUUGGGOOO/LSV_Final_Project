@@ -138,7 +138,8 @@ namespace operations_research
     for (int i = 0 ; i < ans.size() ; ++i)
     {
       string ct_off_name = "ct_off_" + to_string(i);
-      ct_off.push_back(solver->MakeRowConstraint(-infinity, T-0.1, ct_off_name));
+      // 其實是要小於等於 T-delta
+      ct_off.push_back(solver->MakeRowConstraint(-infinity, T, ct_off_name));
     }
     for (int i = 0 ; i < ans.size() ; ++i)
     {
