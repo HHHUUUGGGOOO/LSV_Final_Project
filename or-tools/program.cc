@@ -265,10 +265,10 @@ namespace operations_research
   }
 }
 
-int main() 
+int main(int argc, char** argv) 
 {
   // char * pSop, int var_num, int cube_num
-  string a = "11- 1\n-11 1\n";
-  char* b = &a[0];
-  operations_research::LSV_ILPCheck(b, 3, 2);
+  // string a = "11- 1\n-11 1\n";
+  char* b = &argv[1][0];
+  operations_research::LSV_ILPCheck(b, stoi(argv[2]), stoi(argc[3]));
 }
