@@ -2,7 +2,7 @@
 - Threshold logic synthesis
 
 # Execution Command (step by step)
-- cd ../or-tools
+- cd or-tools
 - make third_party
 - cd ..
 - make 
