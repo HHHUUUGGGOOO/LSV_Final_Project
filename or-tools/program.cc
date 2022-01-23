@@ -121,8 +121,8 @@ namespace operations_research
         // 檢查是否包含
         else 
         {
-          vector set_diff;
-          vector::iterator it;
+          Vi set_diff;
+          Vi::iterator it;
           it = set_difference(output[i].begin(), output[i].end(), output[j].begin(), output[j].end(), set_diff.begin());
           if (output[i].size() == output[j].size() + int(it - set_diff.begin()))
           {
