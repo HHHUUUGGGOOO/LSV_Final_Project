@@ -4,7 +4,7 @@
 # Execution Command (step by step)
 - cd or-tools
 - make third_party
-- make build SOURCE=../src/ext-Final/program.cc
+- make build SOURCE=program.cc
 - cd ..
 - make 
 - ./abc
