@@ -68,7 +68,7 @@ void cart_product(
     rvi.pop_back(); // clean ME off for next round
   }
 }
-
+/*
 void CreateOffsetConstraint(char* pSop, int var_num, int cube_num, MPVariable* const T, vector<MPVariable*>& V, const double infinity, vector<MPConstraint*>& ct_off)
 {
   // (1) 算共幾種組合 (ac. bd. ad --> 2*2*2 = 8 種)
@@ -146,6 +146,7 @@ void CreateOffsetConstraint(char* pSop, int var_num, int cube_num, MPVariable* c
     }
   }
 }
+*/
 
 vector<int> LSV_ILPCheck(char * pSop, int var_num, int cube_num)
 {
@@ -202,7 +203,7 @@ vector<int> LSV_ILPCheck(char * pSop, int var_num, int cube_num)
   // Create a lineat constraint : offset of each cube
     // 暴力法 : 直接爆出所有的"組合" (用 recursive, https://reurl.cc/2Dom5v)
   vector<MPConstraint*> ct_off;
-  CreateOffsetConstraint(pSop, var_num, cube_num, T, V, infinity, ct_off);
+  // CreateOffsetConstraint(pSop, var_num, cube_num, T, V, infinity, ct_off);
 
   LOG(INFO) << "Number of constraints = " << solver->NumConstraints();
   
