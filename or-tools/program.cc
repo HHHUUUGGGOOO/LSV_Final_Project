@@ -66,11 +66,11 @@ namespace operations_research
     }
   }
   
-  void CreateOffsetConstraint(char* pSop, int var_num, int cube_num, MPVariable* const T, vector<MPVariable*>& V, const double infinity, vector<MPConstraint*>& ct_off, std::unique_ptr<MPSolver>& solver)
+  void CreateOffsetConstraint(vector<char*>& pCube, int var_num, int cube_num, MPVariable* const T, vector<MPVariable*>& V, const double infinity, vector<MPConstraint*>& ct_off, std::unique_ptr<MPSolver>& solver)
   {
     // (1) 算共幾種組合 (ac. bd. ad --> 2*2*2 = 8 種)
     // (2) 並建造 onset cube 
-    char* pCube; // iterator
+    // char* pCube; // iterator
     int comb_num = 1;
     Vvi onset_list;
     for (int c = 0 ; c < cube_num ; ++c)
@@ -79,7 +79,7 @@ namespace operations_research
       vector<int> temp_var;
       for (int i = 0 ; i < var_num ; ++i)
       {
-        if (pCube[i] != '-') 
+        if (pCube[c][i] != '-') 
         { 
           ++temp; 
           temp_var.push_back(i);
@@ -88,7 +88,7 @@ namespace operations_research
       if (temp != 0) { comb_num *= temp; }
       onset_list.push_back(temp_var);
     }
-    strcpy(pCube, "");
+    // strcpy(pCube, "");
     // 列出所有組合 
       // input : [[a, c], [b, d], [a, d]]
       // output : [[a, b, a], [a, b, d], [a, d, a], ..., [c, d, d]]
@@ -151,19 +151,37 @@ namespace operations_research
   {
     // initialize (assume all variables are unate)
     vector<int> ans;
-    char* pCube; // iterator
+    vector<char*> pCube; // iterator
     bool IsNegUnate[100] = {false}; // 不確定可不可以用變數來宣告大小 --> 大小開 var_num
+
+    string temp_char;
+    bool one_cube = true;
+    for (int i = 0 ; i < strlen(pSop) ; ++i)
+    {
+      if (pSop[i] == '\n') { one_cube = true; continue; }
+      if (pSop[i] == ' ') 
+      {  
+        char* t = <const_cast><char*>(temp_char.c_str());
+        pCube.push_back(t);
+        temp_char = "";
+        one_cube = false;
+      }
+      if (one_cube == true) 
+      {
+        temp_char.append(pSop[i]);
+      }
+    }
 
     for (int c = 0 ; c < cube_num ; ++c)
     {
       // Later, we need to set a temp var " y " to subsitute the negation variable " x' "
       for (int i = 0 ; i < var_num ; ++i)
       {
-        if (pCube[i] == '0') { IsNegUnate[i] = true; }
+        if (pCube[c][i] == '0') { IsNegUnate[i] = true; }
       }
     }
     // reset iterator
-    strcpy(pCube, "");
+    // pCube.clear()
 
     // Declare solver : Create the linear solver with the GLOP backend
     std::unique_ptr<MPSolver> solver(MPSolver::CreateSolver("SCIP"));
@@ -196,16 +214,16 @@ namespace operations_research
     {
       for (int i = 0 ; i < var_num ; ++i) 
       {
-        if (pCube[i] != '-') { ct_on[c]->SetCoefficient(V[i], 1); }
+        if (pCube[c][i] != '-') { ct_on[c]->SetCoefficient(V[i], 1); }
       }
       ct_on[c]->SetCoefficient(T, -1);
     }
-    strcpy(pCube, "");
+    // strcpy(pCube, "");
 
     // Create a lineat constraint : offset of each cube
       // 暴力法 : 直接爆出所有的"組合" (用 recursive, https://reurl.cc/2Dom5v)
     vector<MPConstraint*> ct_off;
-    CreateOffsetConstraint(pSop, var_num, cube_num, T, V, infinity, ct_off, solver);
+    CreateOffsetConstraint(pCube, var_num, cube_num, T, V, infinity, ct_off, solver);
 
     LOG(INFO) << "Number of constraints = " << solver->NumConstraints();
     
@@ -247,8 +265,8 @@ namespace operations_research
   }
 }
 
-int main(int argc, char** argv) 
+int main() 
 {
   // char * pSop, int var_num, int cube_num
-  operations_research::LSV_ILPCheck(argv[1], stoi(argv[2]), stoi(argv[3]));
+  operations_research::LSV_ILPCheck("11- 1\n-11 1\n", 3, 2);
 }
