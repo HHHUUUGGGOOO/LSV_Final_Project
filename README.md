@@ -27,4 +27,5 @@
 #  Note
 - Ensure the environment has installed "cmake"
 - "abcl" package needs to be installed (https://reurl.cc/GoEmWG)
+- To execute ILP checker, need to type command line "make run SOURCE=</relative_path/>program.cc"
 
