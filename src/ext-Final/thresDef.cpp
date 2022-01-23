@@ -1049,8 +1049,8 @@ void LSV_Threshold(Abc_Ntk_t* pNtk, int max_fanin)
                 if (LSV_UnateCheck(pSop))
                 {
                     vector<int> T_weight;
-                    int var_num = Abc_SopGetVarNum(pSop);
-                    int cube_num = Abc_SopGetCubeNum(pSop);
+                    int var_num = Abc_SopGetVarNum(pSop.func);
+                    int cube_num = Abc_SopGetCubeNum(pSop.func);
                     T_weight = LSV_ILPCheck(pSop.func, var_num, cube_num);
                     if (T_weight.size() > 0)
                     {
