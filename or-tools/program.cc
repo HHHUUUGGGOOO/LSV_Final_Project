@@ -20,7 +20,7 @@
 
 using namespace std;
 
-extern operations_research;
+// extern operations_research;
 
 //----------------------------------------------------------------------
 //    Type define
