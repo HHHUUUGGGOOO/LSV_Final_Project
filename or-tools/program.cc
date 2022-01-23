@@ -139,7 +139,7 @@ namespace operations_research
     {
       string ct_off_name = "ct_off_" + to_string(i);
       // 其實是要小於等於 T-delta
-      ct_off.push_back(solver->MakeRowConstraint(-infinity, T, ct_off_name));
+      ct_off.push_back(solver->MakeRowConstraint(-infinity, -0.1, ct_off_name));
     }
     for (int i = 0 ; i < ans.size() ; ++i)
     {
@@ -147,6 +147,7 @@ namespace operations_research
       {
         ct_off[i]->SetCoefficient(V[ans[i][j]], 1);
       }
+      ct_off[i]->SetCoefficient(T, -1);
     }
   }
   
@@ -194,7 +195,7 @@ namespace operations_research
     for (int c = 0 ; c < cube_num ; ++c)
     {
       string ct_on_name = "ct_on_" + to_string(c);
-      ct_on.push_back(solver->MakeRowConstraint(T, infinity, ct_on_name));
+      ct_on.push_back(solver->MakeRowConstraint(0, infinity, ct_on_name));
     }
     for (int c = 0 ; c < cube_num ; ++c)
     {
@@ -202,6 +203,7 @@ namespace operations_research
       {
         if (pCube[i] != '-') { ct_on[c]->SetCoefficient(V[i], 1); }
       }
+      ct_on[c]->SetCoefficient(T, -1);
     }
     strcpy(pCube, "");
 
