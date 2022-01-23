@@ -13,8 +13,17 @@
 #include <iterator>
 #include <unordered_map>
 #include <unordered_set>
+#include <cstdlib>
 // self-file
+#include "absl/flags/flag.h"
+#include "absl/flags/parse.h"
+#include "absl/flags/usage.h"
+#include "absl/strings/match.h"
+#include "absl/strings/string_view.h"
+#include "ortools/base/commandlineflags.h"
+#include "ortools/base/logging.h"
 #include "ortools/linear_solver/linear_solver.h"
+#include "ortools/linear_solver/linear_solver.pb.h"
 
 using namespace std;
 
@@ -145,7 +154,7 @@ vector<int> LSV_ILPCheck(char * pSop, int var_num, int cube_num)
   // initialize (assume all variables are unate)
   vector<int> ans;
   char* pCube; // iterator
-  bool IsNegUnate[var_num] = {false}; // 不確定可不可以用變數來宣告大小
+  bool IsNegUnate[100] = {false}; // 不確定可不可以用變數來宣告大小 --> 大小開 var_num
 
   for (int c = 0 ; c < cube_num ; ++c)
   {
@@ -168,7 +177,7 @@ vector<int> LSV_ILPCheck(char * pSop, int var_num, int cube_num)
     // MakeIntVar --> 限定解只能是 integer
   const double infinity = solver->infinity();
   MPVariable* const T = solver->MakeIntVar(0.0, infinity, "T");
-  vector<MPVariable*> V[var_num];
+  vector<MPVariable*> V[100]; // --> 大小開 var_num
   for (int i = 0 ; i < var_num ; ++i)
   {
     string name = "w" + to_string(i);
@@ -178,7 +187,7 @@ vector<int> LSV_ILPCheck(char * pSop, int var_num, int cube_num)
   LOG(INFO) << "Number of variables = " << solver->NumVariables();
 
   // Create a lineat constraint : onset of each cube
-  vector<MPConstraint*> ct_on[cube_num];
+  vector<MPConstraint*> ct_on[100]; // --> 大小開 cube_num
   int idx = 0;
   for (int c = 0 ; c < cube_num ; ++c)
   {
