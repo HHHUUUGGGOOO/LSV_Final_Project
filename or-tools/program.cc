@@ -70,7 +70,7 @@ namespace operations_research
       rvi.pop_back(); // clean ME off for next round
     }
   }
-  /*
+  
   void CreateOffsetConstraint(char* pSop, int var_num, int cube_num, MPVariable* const T, vector<MPVariable*>& V, const double infinity, vector<MPConstraint*>& ct_off)
   {
     // (1) 算共幾種組合 (ac. bd. ad --> 2*2*2 = 8 種)
@@ -148,7 +148,7 @@ namespace operations_research
       }
     }
   }
-  */
+  
 
   vector<int> LSV_ILPCheck(char * pSop, int var_num, int cube_num)
   {
