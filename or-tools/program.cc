@@ -161,14 +161,13 @@ namespace operations_research
       if (pSop[i] == '\n') { one_cube = true; continue; }
       if (pSop[i] == ' ') 
       {  
-        char* t = <const_cast><char*>(temp_char.c_str());
-        pCube.push_back(t);
+        pCube.push_back(&temp_char[0]);
         temp_char = "";
         one_cube = false;
       }
       if (one_cube == true) 
       {
-        temp_char.append(pSop[i]);
+        temp_char.append(pCube[c][i]);
       }
     }
 
